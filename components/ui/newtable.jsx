@@ -149,6 +149,7 @@ export default function App() {
       const response = await fetch("/api/products");
       const data = await response.json();
       setProducts(data); // Verileri state'e kaydet
+      console.log("API'den gelen veri:", data); // Gelen veriyi kontrol et
     } catch (error) {
       console.error("Veriler alınırken hata oluştu:", error);
     }
@@ -262,7 +263,7 @@ export default function App() {
                   <Button onClick={handleEdit} color="warning" type="submit">
                     Düzenle
                   </Button>
-                  <Button color="danger" onClick={handleDelete}>
+                  <Button color="danger" onPress={handleDelete}>
                     Sil
                   </Button>
                   <Button
