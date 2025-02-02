@@ -1,15 +1,33 @@
 import mongoose from "mongoose";
 
+const generateFamilyCode = async () => {
+  const random = Math.floor(1000 + Math.random() * 9000);
+  const code = `FAM-${random}`;
+  const exists = await mongoose.model("Family").findOne({ familyCode: code });
+  return exists ? generateFamilyCode() : code;
+};
+
 const familySchema = new mongoose.Schema(
   {
-    name: { type: String },
-    category: { type: String },
-    brand: { type: String },
-    description: { type: String },
-    basePrice: { type: Number },
-    isVariant: { type: Boolean, required: true, default: false },
+    familyName: { type: String, required: true },
+    familyBrand: { type: String, required: true },
+    familyCategory: { type: String, required: true },
+    familyCode: { type: String, unique: true },
+    familyVariantCount: { type: Number, required: true },
+    familyV1Name: { type: String },
+    familyV2Name: { type: String },
+    familyV3Name: { type: String },
+    familyDetail: { type: String },
+    isVariant: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
+
+familySchema.pre("save", async function (next) {
+  if (!this.familyCode) {
+    this.familyCode = await generateFamilyCode();
+  }
+  next();
+});
 
 export default mongoose.models.Family || mongoose.model("Family", familySchema);
