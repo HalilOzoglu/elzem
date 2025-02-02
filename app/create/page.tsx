@@ -1,5 +1,6 @@
 "use client";
 import ProductAdd from "@/components/ui/newtable";
+import ProductFamily from "@/components/ui/family";
 import { Tab, Tabs } from "@heroui/tabs";
 export default function CreatePage() {
   return (
@@ -9,7 +10,9 @@ export default function CreatePage() {
         <Tab title="Tekli">
           <ProductAdd />
         </Tab>
-        <Tab title="Varyantlı"></Tab>
+        <Tab title="Varyantlı">
+          <ProductFamily />
+        </Tab>
       </Tabs>
     </div>
   );
