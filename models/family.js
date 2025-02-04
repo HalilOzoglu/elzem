@@ -7,6 +7,17 @@ const generateFamilyCode = async () => {
   return exists ? generateFamilyCode() : code;
 };
 
+// Variant alt şeması
+const variantSchema = new mongoose.Schema({
+  v1: { type: String },
+  v2: { type: String },
+  v3: { type: String },
+  sku: { type: String, required: true, unique: true },
+  box: { type: Number, required: true },
+  price: { type: Number, required: true },
+  count: { type: Number, required: true },
+});
+
 const familySchema = new mongoose.Schema(
   {
     familyName: { type: String, required: true },
@@ -19,6 +30,8 @@ const familySchema = new mongoose.Schema(
     familyV3Name: { type: String },
     familyDetail: { type: String },
     isVariant: { type: Boolean, default: true },
+    // Variants array'i eklendi
+    variants: [variantSchema],
   },
   { timestamps: true }
 );
