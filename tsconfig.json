@@ -29,7 +29,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "components/ui/singleproduct.jsx",
-    "components/ui/productadd.jsx"
+    "components/ui/productadd.jsx",
+    "app/page.jsx"
   ],
   "exclude": ["node_modules"]
 }

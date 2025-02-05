@@ -401,7 +401,7 @@ export default function App() {
       <div className="flex">
         {/* Aile Paneli */}
         <div>
-          <Card className="bg-transparent flex-1">
+          <Card className="bg-transparent flex-1 max-w-sm">
             <CardHeader>
               <h1 className="mx-auto">Ürün Aile Paneli</h1>
               {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
@@ -579,7 +579,7 @@ export default function App() {
         </div>
 
         {/* Varyant Paneli */}
-        <div className="text-sm">
+        <div className="text-sm max-w-xs">
           <Card>
             <CardHeader>
               <h1 className="mx-auto">Varyant Paneli</h1>

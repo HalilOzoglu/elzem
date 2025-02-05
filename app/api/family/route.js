@@ -1,12 +1,13 @@
-import Family from "@/models/family";
-import dbConnect from "@/utils/dbConnect";
+import Family from "@/models/family"; // Modeli import et
+import dbConnect from "@/utils/dbConnect"; // DB bağlantısını import et
 import { NextResponse } from "next/server";
 
+// GET: Tüm aileleri listele
 export async function GET() {
   try {
-    await dbConnect();
-    const families = await Family.find({}).sort({ createdAt: -1 });
-    return NextResponse.json(families);
+    await dbConnect(); // DB bağlantısını kur
+    const families = await Family.find({}).sort({ createdAt: -1 }); // Tüm aileleri getir
+    return NextResponse.json(families); // JSON olarak döndür
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
@@ -15,17 +16,18 @@ export async function GET() {
   }
 }
 
+// POST: Yeni aile ekle
 export async function POST(req) {
   try {
-    await dbConnect();
-    const body = await req.json();
+    await dbConnect(); // DB bağlantısını kur
+    const body = await req.json(); // Request body'yi al
 
     // familyCode otomatik oluşturulacak, kabul etmiyoruz
     const { familyCode, ...rest } = body;
 
-    const family = new Family(rest);
-    await family.save();
-    return NextResponse.json({ success: true, family }, { status: 201 });
+    const family = new Family(rest); // Yeni aile oluştur
+    await family.save(); // Aileyi kaydet
+    return NextResponse.json({ success: true, family }, { status: 201 }); // Başarılı yanıt döndür
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
@@ -34,10 +36,11 @@ export async function POST(req) {
   }
 }
 
+// PUT: Aile güncelle
 export async function PUT(req) {
   try {
-    await dbConnect();
-    const body = await req.json();
+    await dbConnect(); // DB bağlantısını kur
+    const body = await req.json(); // Request body'yi al
     const { _id, familyCode, ...updateFields } = body;
 
     if (!_id) {
@@ -47,6 +50,7 @@ export async function PUT(req) {
       );
     }
 
+    // Aileyi güncelle
     const family = await Family.findByIdAndUpdate(_id, updateFields, {
       new: true,
       runValidators: true,
@@ -59,7 +63,14 @@ export async function PUT(req) {
       );
     }
 
-    return NextResponse.json({ success: true, family });
+    // Varyantlar varsa, en düşük fiyatı bul ve familyBasePrice'ı güncelle
+    if (family.variants && family.variants.length > 0) {
+      const minPrice = Math.min(...family.variants.map((v) => v.price));
+      family.familyBasePrice = minPrice;
+      await family.save(); // Güncellenmiş aileyi kaydet
+    }
+
+    return NextResponse.json({ success: true, family }); // Başarılı yanıt döndür
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
@@ -68,10 +79,11 @@ export async function PUT(req) {
   }
 }
 
+// DELETE: Aile sil
 export async function DELETE(req) {
   try {
-    await dbConnect();
-    const { _id } = await req.json();
+    await dbConnect(); // DB bağlantısını kur
+    const { _id } = await req.json(); // Request body'den _id'yi al
 
     if (!_id) {
       return NextResponse.json(
@@ -80,6 +92,7 @@ export async function DELETE(req) {
       );
     }
 
+    // Aileyi sil
     const family = await Family.findByIdAndDelete(_id);
     if (!family) {
       return NextResponse.json(
@@ -88,7 +101,7 @@ export async function DELETE(req) {
       );
     }
 
-    return NextResponse.json({ success: true, message: "Aile silindi" });
+    return NextResponse.json({ success: true, message: "Aile silindi" }); // Başarılı yanıt döndür
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },

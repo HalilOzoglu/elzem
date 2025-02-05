@@ -6,7 +6,6 @@ const generateFamilyCode = async () => {
   const exists = await mongoose.model("Family").findOne({ familyCode: code });
   return exists ? generateFamilyCode() : code;
 };
-
 // Variant alt şeması
 const variantSchema = new mongoose.Schema({
   v1: { type: String },
@@ -29,6 +28,7 @@ const familySchema = new mongoose.Schema(
     familyV2Name: { type: String },
     familyV3Name: { type: String },
     familyDetail: { type: String },
+    familyBasePrice: { type: Number },
     isVariant: { type: Boolean, default: true },
     // Variants array'i eklendi
     variants: [variantSchema],
