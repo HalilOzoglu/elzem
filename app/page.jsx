@@ -2,12 +2,19 @@ import Link from "next/link";
 import Product from "@/models/product";
 import Family from "@/models/family";
 import dbConnect from "@/utils/dbConnect";
+import ProductList from "@/components/ui/ProductList";
+import mongoose from "mongoose";
 
 async function getCategoriesWithProducts() {
   try {
     await dbConnect();
 
-    // Tüm kategorileri ve ürünleri çek
+    // Veritabanı bağlantısını kontrol et
+    if (!mongoose.connection.readyState) {
+      console.error("Veritabanı bağlantısı yok");
+      return null;
+    }
+
     const products = await Product.find({})
       .select(
         "productCategory productName productPrice productDetail productCount productSku"
@@ -20,10 +27,14 @@ async function getCategoriesWithProducts() {
       )
       .lean();
 
-    // Kategorilere göre gruplama
+    // Eğer hiç ürün yoksa boş obje dön
+    if (products.length === 0 && families.length === 0) {
+      return {};
+    }
+
     const categoryMap = {};
 
-    // Product'ları işle
+    // Product'ları işle ve _id'yi string'e çevir
     products.forEach((product) => {
       const category = product.productCategory;
       if (!categoryMap[category]) {
@@ -31,11 +42,12 @@ async function getCategoriesWithProducts() {
       }
       categoryMap[category].push({
         ...product,
+        _id: product._id.toString(), // ObjectId'yi string'e çevir
         type: "product",
       });
     });
 
-    // Family'leri işle
+    // Family'leri işle ve _id'yi string'e çevir
     families.forEach((family) => {
       const category = family.familyCategory;
       if (!categoryMap[category]) {
@@ -43,80 +55,34 @@ async function getCategoriesWithProducts() {
       }
       categoryMap[category].push({
         ...family,
+        _id: family._id.toString(), // ObjectId'yi string'e çevir
         productName: family.familyName,
         productCategory: family.familyCategory,
         productDetail: family.familyDetail,
-        productPrice: family.basePrice, // Fiyatı "den başlayan" şeklinde göster
-        productSku: family.familyCode, // SKU yerine familyCode kullan
+        productPrice: family.familyBasePrice,
+        productSku: family.familyCode,
         type: "family",
       });
     });
 
-    return categoryMap;
+    // Tüm datastructure'ı JSON'a çevir ve geri parse et
+    // Bu, tüm MongoDB özel tiplerini plain JavaScript objelerine çevirir
+    return JSON.parse(JSON.stringify(categoryMap));
   } catch (error) {
     console.error("Veritabanı hatası:", error);
-    return {};
+    throw error;
   }
 }
-
 export default async function Home() {
-  let data = await getCategoriesWithProducts();
-  // Eğer veri yoksa fallback UI
-  if (Object.keys(data).length === 0) {
-    return (
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center text-gray-600">
-          Ürünler yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.
-        </div>
-      </main>
-    );
+  let categoryData;
+
+  try {
+    categoryData = await getCategoriesWithProducts();
+    console.log("CategoryData:", categoryData); // Debug için
+  } catch (error) {
+    console.error("Veri çekme hatası:", error);
+    categoryData = null;
   }
 
-  return (
-    <main className="container mx-auto px-4 py-8">
-      {Object.entries(data).map(([category, products]) => (
-        <section key={category} className="mb-12">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 capitalize">
-              {category}
-            </h1>
-            <div className="h-1 w-20 bg-blue-500 mt-2 rounded-full" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.slice(0, 10).map((product) => (
-              <Link
-                key={product.productSku || product.familyCode}
-                href={
-                  product.type === "product"
-                    ? `/products/${product.productSku}`
-                    : `/products/${product.familyCode}`
-                }
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-              >
-                <div className="p-4">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                    {product.productName}
-                  </h2>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {product.productDetail}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-blue-600">
-                      {product.productPrice}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {product.type === "product"
-                        ? `Stok: ${product.productCount}`
-                        : "Varyantlar mevcut"}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
-    </main>
-  );
+  return <ProductList data={categoryData} />;
 }

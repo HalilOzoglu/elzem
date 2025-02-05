@@ -43,28 +43,21 @@ const productSchema = new mongoose.Schema(
     },
     productImg1: {
       type: String,
-      required: false,
     },
     productImg2: {
       type: String,
-      required: false,
     },
     productImg3: {
       type: String,
-      required: false,
     },
     productImgMini: {
       type: String,
-      required: false,
     },
   },
   {
     timestamps: true, // Oluşturulma ve güncellenme tarihlerini otomatik kaydeder.
   }
 );
-
-// Unique indeks tanımlaması
-productSchema.index({ productSku: 1 }, { unique: true });
 
 // Model oluşturma
 export default mongoose.models.Product ||
