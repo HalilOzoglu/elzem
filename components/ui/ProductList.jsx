@@ -1,15 +1,11 @@
 "use client";
 
-import React, { useState, lazy } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-// Lazy import edilen bileşenler
-const ProductCard = lazy(() => import("./SingleProductCard"));
-const FamilyCard = lazy(() => import("./ProductFamilyClient"));
-
 // Ürün Kartı Komponenti
-const ProductCardComponent = React.memo(({ product }) => {
+const ProductCard = ({ product }) => {
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "currency",
     currency: "TRY",
@@ -23,11 +19,11 @@ const ProductCardComponent = React.memo(({ product }) => {
       <div className="min-h-28 bg-gray-200 flex items-center justify-center">
         <span className="text-gray-500">Görsel</span>
       </div>
-      <div className="p-2 text-center">
-        <h2 className="text-sm font-semibold text-gray-800 mb-1">
+      <div className="p-4 items-center text-center">
+        <h2 className="text-xs font-semibold text-gray-800 mb-1">
           {product.productName}
         </h2>
-        <div className="flex justify-center items-center">
+        <div className="">
           <span className="text-sm font-bold text-blue-600">
             {formattedPrice}
           </span>
@@ -35,11 +31,10 @@ const ProductCardComponent = React.memo(({ product }) => {
       </div>
     </Link>
   );
-});
-ProductCardComponent.displayName = "ProductCard";
+};
 
 // Ürün Ailesi Kartı Komponenti
-const FamilyCardComponent = React.memo(({ family }) => {
+const FamilyCard = ({ family }) => {
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "currency",
     currency: "TRY",
@@ -50,14 +45,14 @@ const FamilyCardComponent = React.memo(({ family }) => {
       href={`/products/${family.familyCode}`}
       className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 w-28 h-52 m-1 flex flex-col justify-between"
     >
-      <div className="min-h-40 bg-gray-200 flex items-center justify-center">
+      <div className="min-h-28 bg-gray-200 flex items-center justify-center">
         <span className="text-gray-500">Görsel</span>
       </div>
-      <div className="p-2 text-center">
-        <h2 className="text-sm font-semibold text-gray-800 mb-1">
+      <div className="p-4 text-center mt-auto">
+        <h2 className="text-xs font-semibold text-gray-800 mb-1">
           {family.productName}
         </h2>
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center mt-auto">
           <span className="text-sm font-bold text-blue-600">
             {formattedPrice}
           </span>
@@ -65,16 +60,15 @@ const FamilyCardComponent = React.memo(({ family }) => {
       </div>
     </Link>
   );
-});
-FamilyCardComponent.displayName = "FamilyCard";
+};
 
 // Kategori Bölümü Komponenti
 const CategorySection = ({ category, products: initialProducts }) => {
   const [expanded, setExpanded] = useState(false);
   const [products] = useState(initialProducts);
 
-  const displayProducts = expanded ? products : products.slice(0, 12);
-  const hasMore = products.length > 12;
+  const displayProducts = expanded ? products : products.slice(0, 3);
+  const hasMore = products.length > 3;
 
   return (
     <section className="mb-12">
@@ -93,9 +87,9 @@ const CategorySection = ({ category, products: initialProducts }) => {
       <div className="flex flex-wrap justify-start">
         {displayProducts.map((item) =>
           item.type === "product" ? (
-            <ProductCardComponent key={item.productSku} product={item} />
+            <ProductCard key={item.productSku} product={item} />
           ) : (
-            <FamilyCardComponent key={item.familyCode} family={item} />
+            <FamilyCard key={item.familyCode} family={item} />
           )
         )}
       </div>
@@ -142,9 +136,9 @@ const ProductList = ({ data }) => {
     );
   }
 
-  // data içerisindeki kategorileri sıralı hale getirelim
-  const sortedCategories = Object.entries(data).sort(([catA], [catB]) =>
-    catA.localeCompare(catB)
+  // Kategorileri ürün sayısına göre sıralayın
+  const sortedCategories = Object.entries(data).sort(
+    ([, productsA], [, productsB]) => productsB.length - productsA.length
   );
 
   return (
