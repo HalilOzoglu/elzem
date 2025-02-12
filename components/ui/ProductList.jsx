@@ -4,8 +4,9 @@ import React, { useState, lazy } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-const ProductCard = lazy(() => import(".//SingleProductCard"));
-const FamilyCard = lazy(() => import(".//ProductFamilyClient"));
+// Lazy import edilen bileşenler
+const ProductCard = lazy(() => import("./SingleProductCard"));
+const FamilyCard = lazy(() => import("./ProductFamilyClient"));
 
 // Ürün Kartı Komponenti
 const ProductCardComponent = React.memo(({ product }) => {
@@ -35,7 +36,7 @@ const ProductCardComponent = React.memo(({ product }) => {
     </Link>
   );
 });
-ProductCard.displayName = "ProductCard";
+ProductCardComponent.displayName = "ProductCard";
 
 // Ürün Ailesi Kartı Komponenti
 const FamilyCardComponent = React.memo(({ family }) => {
@@ -65,7 +66,7 @@ const FamilyCardComponent = React.memo(({ family }) => {
     </Link>
   );
 });
-FamilyCard.displayName = "FamilyCard";
+FamilyCardComponent.displayName = "FamilyCard";
 
 // Kategori Bölümü Komponenti
 const CategorySection = ({ category, products: initialProducts }) => {
@@ -141,6 +142,11 @@ const ProductList = ({ data }) => {
     );
   }
 
+  // data içerisindeki kategorileri sıralı hale getirelim
+  const sortedCategories = Object.entries(data).sort(([catA], [catB]) =>
+    catA.localeCompare(catB)
+  );
+
   return (
     <main className="container px-4 mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -153,12 +159,5 @@ const ProductList = ({ data }) => {
     </main>
   );
 };
-
-// Örnek bir bileşen için props sıralama ve boş satır ekleme
-const ExampleComponent = ({ aProp, bProp, cProp }) => {
-  // ... existing code ...
-};
-
-// Boş satır eklenmesi gereken yer
 
 export default ProductList;
