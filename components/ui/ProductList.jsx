@@ -14,21 +14,18 @@ const ProductCard = ({ product }) => {
   return (
     <Link
       href={`/products/${product.productSku}`}
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border-2 border-blue-100 w-32 h-60 m-1"
     >
-      <div className="p-4">
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
+      <div className="min-h-40 bg-gray-200 flex items-center justify-center">
+        <span className="text-gray-500">Görsel</span>
+      </div>
+      <div className="p-2 text-center">
+        <h2 className="text-sm font-semibold text-gray-800 mb-1">
           {product.productName}
         </h2>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {product.productDetail}
-        </p>
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-bold text-blue-600">
+        <div className="flex justify-center items-center">
+          <span className="text-sm font-bold text-blue-600">
             {formattedPrice}
-          </span>
-          <span className="text-sm text-gray-500">
-            Stok: {product.productCount}
           </span>
         </div>
       </div>
@@ -46,31 +43,18 @@ const FamilyCard = ({ family }) => {
   return (
     <Link
       href={`/products/${family.familyCode}`}
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border-2 border-blue-100"
+      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 w-32 h-60 m-1"
     >
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-xl font-semibold text-gray-800">
-            {family.productName}
-          </h2>
-          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-            Varyantlı Ürün
-          </span>
-        </div>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {family.productDetail}
-        </p>
-        <div className="flex justify-between items-center">
-          <div>
-            <span className="text-lg font-bold text-blue-600">
-              {formattedPrice}
-            </span>
-            <span className="text-xs text-gray-500 block">
-              Başlangıç fiyatı
-            </span>
-          </div>
-          <span className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
-            Seçenekler Mevcut
+      <div className="min-h-40 bg-gray-200 flex items-center justify-center">
+        <span className="text-gray-500">Görsel</span>
+      </div>
+      <div className="p-2 text-center">
+        <h2 className="text-sm font-semibold text-gray-800 mb-1">
+          {family.productName}
+        </h2>
+        <div className="flex justify-center items-center">
+          <span className="text-sm font-bold text-blue-600">
+            {formattedPrice}
           </span>
         </div>
       </div>
@@ -83,8 +67,8 @@ const CategorySection = ({ category, products: initialProducts }) => {
   const [expanded, setExpanded] = useState(false);
   const [products] = useState(initialProducts);
 
-  const displayProducts = expanded ? products : products.slice(0, 8);
-  const hasMore = products.length > 8;
+  const displayProducts = expanded ? products : products.slice(0, 12);
+  const hasMore = products.length > 12;
 
   return (
     <section className="mb-12">
@@ -96,11 +80,11 @@ const CategorySection = ({ category, products: initialProducts }) => {
             </h1>
             <div className="h-1 w-20 bg-blue-500 mt-2 rounded-full" />
           </div>
-          <span className="text-sm text-gray-500">{products.length} ürün</span>
+          <span className="text-sm text-gray-500"></span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="flex flex-wrap justify-start">
         {displayProducts.map((item) =>
           item.type === "product" ? (
             <ProductCard key={item.productSku} product={item} />
@@ -153,13 +137,11 @@ const ProductList = ({ data }) => {
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8 flex flex-wrap gap-4">
       {Object.entries(data).map(([category, products]) => (
-        <CategorySection
-          key={category}
-          category={category}
-          products={products}
-        />
+        <div key={category} className="w-full md:w-1/2 lg:w-1/3">
+          <CategorySection category={category} products={products} />
+        </div>
       ))}
     </main>
   );

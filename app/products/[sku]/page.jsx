@@ -11,7 +11,7 @@ async function getProductData(sku) {
     await dbConnect();
 
     // 1. Product kontrolü
-    const product = await Product.findOne({ productSku: sku })
+    let product = await Product.findOne({ productSku: sku })
       .select("-__v -createdAt -updatedAt")
       .lean();
 
