@@ -17,22 +17,16 @@ const ProductCardComponent = React.memo(({ product }) => {
   return (
     <Link
       href={`/products/${product.productSku}`}
-      prefetch={true}
       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-blue-100 w-28 h-52 m-1 flex flex-col justify-between"
     >
       <div className="min-h-28 bg-gray-200 flex items-center justify-center">
-        <img
-          src={product.imageUrl}
-          alt={product.productName}
-          loading="lazy"
-          className="object-cover"
-        />
+        <span className="text-gray-500">Görsel</span>
       </div>
-      <div className="p-4 items-center text-center">
-        <h2 className="text-xs font-semibold text-gray-800 mb-1">
+      <div className="p-2 text-center">
+        <h2 className="text-sm font-semibold text-gray-800 mb-1">
           {product.productName}
         </h2>
-        <div className="">
+        <div className="flex justify-center items-center">
           <span className="text-sm font-bold text-blue-600">
             {formattedPrice}
           </span>
@@ -53,17 +47,16 @@ const FamilyCardComponent = React.memo(({ family }) => {
   return (
     <Link
       href={`/products/${family.familyCode}`}
-      prefetch={true}
       className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 w-28 h-52 m-1 flex flex-col justify-between"
     >
-      <div className="min-h-28 bg-gray-200 flex items-center justify-center">
+      <div className="min-h-40 bg-gray-200 flex items-center justify-center">
         <span className="text-gray-500">Görsel</span>
       </div>
-      <div className="p-4 text-center mt-auto">
-        <h2 className="text-xs font-semibold text-gray-800 mb-1">
+      <div className="p-2 text-center">
+        <h2 className="text-sm font-semibold text-gray-800 mb-1">
           {family.productName}
         </h2>
-        <div className="flex justify-center items-center mt-auto">
+        <div className="flex justify-center items-center">
           <span className="text-sm font-bold text-blue-600">
             {formattedPrice}
           </span>
@@ -79,8 +72,8 @@ const CategorySection = ({ category, products: initialProducts }) => {
   const [expanded, setExpanded] = useState(false);
   const [products] = useState(initialProducts);
 
-  const displayProducts = expanded ? products : products.slice(0, 3);
-  const hasMore = products.length > 3;
+  const displayProducts = expanded ? products : products.slice(0, 12);
+  const hasMore = products.length > 12;
 
   return (
     <section className="mb-12">
@@ -148,24 +141,24 @@ const ProductList = ({ data }) => {
     );
   }
 
-  // Kategorileri ürün sayısına göre sıralayın
-  const sortedCategories = Object.entries(data).sort(
-    ([, productsA], [, productsB]) => productsB.length - productsA.length
-  );
-
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
-      <main className="container px-4 mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {sortedCategories.map(([category, products]) => (
-            <div key={category} className="w-full">
-              <CategorySection category={category} products={products} />
-            </div>
-          ))}
-        </div>
-      </main>
-    </React.Suspense>
+    <main className="container px-4 mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {sortedCategories.map(([category, products]) => (
+          <div key={category} className="w-full">
+            <CategorySection category={category} products={products} />
+          </div>
+        ))}
+      </div>
+    </main>
   );
 };
+
+// Örnek bir bileşen için props sıralama ve boş satır ekleme
+const ExampleComponent = ({ aProp, bProp, cProp }) => {
+  // ... existing code ...
+};
+
+// Boş satır eklenmesi gereken yer
 
 export default ProductList;
