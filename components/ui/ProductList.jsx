@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, lazy } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
+const ProductCard = lazy(() => import(".//SingleProductCard"));
+const FamilyCard = lazy(() => import(".//ProductFamilyClient"));
+
 // Ürün Kartı Komponenti
-const ProductCard = ({ product }) => {
+const ProductCardComponent = React.memo(({ product }) => {
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "currency",
     currency: "TRY",
@@ -14,10 +17,16 @@ const ProductCard = ({ product }) => {
   return (
     <Link
       href={`/products/${product.productSku}`}
+      prefetch={true}
       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-blue-100 w-28 h-52 m-1 flex flex-col justify-between"
     >
       <div className="min-h-28 bg-gray-200 flex items-center justify-center">
-        <span className="text-gray-500">Görsel</span>
+        <img
+          src={product.imageUrl}
+          alt={product.productName}
+          loading="lazy"
+          className="object-cover"
+        />
       </div>
       <div className="p-4 items-center text-center">
         <h2 className="text-xs font-semibold text-gray-800 mb-1">
@@ -31,10 +40,10 @@ const ProductCard = ({ product }) => {
       </div>
     </Link>
   );
-};
+});
 
 // Ürün Ailesi Kartı Komponenti
-const FamilyCard = ({ family }) => {
+const FamilyCardComponent = React.memo(({ family }) => {
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "currency",
     currency: "TRY",
@@ -43,6 +52,7 @@ const FamilyCard = ({ family }) => {
   return (
     <Link
       href={`/products/${family.familyCode}`}
+      prefetch={true}
       className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 w-28 h-52 m-1 flex flex-col justify-between"
     >
       <div className="min-h-28 bg-gray-200 flex items-center justify-center">
@@ -60,7 +70,7 @@ const FamilyCard = ({ family }) => {
       </div>
     </Link>
   );
-};
+});
 
 // Kategori Bölümü Komponenti
 const CategorySection = ({ category, products: initialProducts }) => {
@@ -87,9 +97,9 @@ const CategorySection = ({ category, products: initialProducts }) => {
       <div className="flex flex-wrap justify-start">
         {displayProducts.map((item) =>
           item.type === "product" ? (
-            <ProductCard key={item.productSku} product={item} />
+            <ProductCardComponent key={item.productSku} product={item} />
           ) : (
-            <FamilyCard key={item.familyCode} family={item} />
+            <FamilyCardComponent key={item.familyCode} family={item} />
           )
         )}
       </div>
@@ -142,15 +152,17 @@ const ProductList = ({ data }) => {
   );
 
   return (
-    <main className="container px-4 mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {sortedCategories.map(([category, products]) => (
-          <div key={category} className="w-full">
-            <CategorySection category={category} products={products} />
-          </div>
-        ))}
-      </div>
-    </main>
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <main className="container px-4 mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {sortedCategories.map(([category, products]) => (
+            <div key={category} className="w-full">
+              <CategorySection category={category} products={products} />
+            </div>
+          ))}
+        </div>
+      </main>
+    </React.Suspense>
   );
 };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 
 const ProductFamilyClient = ({ variants, product }) => {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -8,68 +8,95 @@ const ProductFamilyClient = ({ variants, product }) => {
     v3: "",
   });
 
-  const handleOptionChange = (key, value) => {
-    setSelectedOptions((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const getFilteredOptions = (key) => {
-    const keys = Object.keys(selectedOptions);
-    const currentIndex = keys.indexOf(key);
-
-    return [
-      ...new Set(
-        variants
-          .filter((variant) =>
-            keys
-              .slice(0, currentIndex)
-              .every(
-                (k) => !selectedOptions[k] || variant[k] === selectedOptions[k]
-              )
-          )
-          .map((variant) => variant[key])
-      ),
-    ];
-  };
-
-  const filteredVariants = variants.filter((variant) =>
-    Object.entries(selectedOptions).every(
-      ([key, value]) => !value || variant[key] === value
-    )
+  const variantNames = useMemo(
+    () => ({
+      v1: product.familyV1Name,
+      v2: product.familyV2Name,
+      v3: product.familyV3Name,
+    }),
+    [product]
   );
 
-  const selectedVariant =
-    filteredVariants.length === 1 ? filteredVariants[0] : null;
+  const activeKeys = useMemo(
+    () =>
+      Object.entries(variantNames)
+        .filter(([_, name]) => name)
+        .map(([key]) => key),
+    [variantNames]
+  );
 
-  const variantNames = {
-    v1: product.familyV1Name,
-    v2: product.familyV2Name,
-    v3: product.familyV3Name,
-  };
+  const filteredOptions = useMemo(() => {
+    const options = {};
+    activeKeys.forEach((key, index) => {
+      const prevKeys = activeKeys.slice(0, index);
+      const filtered = variants.filter((variant) =>
+        prevKeys.every(
+          (k) => !selectedOptions[k] || variant[k] === selectedOptions[k]
+        )
+      );
+      options[key] = [...new Set(filtered.map((v) => v[key]))];
+    });
+    return options;
+  }, [activeKeys, variants, selectedOptions]);
+
+  const filteredVariants = useMemo(
+    () =>
+      variants.filter((variant) =>
+        activeKeys.every(
+          (key) =>
+            !selectedOptions[key] || variant[key] === selectedOptions[key]
+        )
+      ),
+    [variants, selectedOptions, activeKeys]
+  );
+
+  const selectedVariant = useMemo(
+    () => (filteredVariants.length === 1 ? filteredVariants[0] : null),
+    [filteredVariants]
+  );
+
+  const handleOptionChange = useCallback(
+    (key, value) => {
+      setSelectedOptions((prev) => {
+        const newOptions = { ...prev, [key]: value };
+
+        // Reset dependent options
+        const keyIndex = activeKeys.indexOf(key);
+        if (keyIndex > -1) {
+          activeKeys.slice(keyIndex + 1).forEach((k) => {
+            newOptions[k] = "";
+          });
+        }
+
+        return newOptions;
+      });
+    },
+    [activeKeys]
+  );
 
   return (
     <div>
       <h2 className="text-lg font-semibold text-gray-700 mb-2">Varyantlar</h2>
 
-      {Object.entries(variantNames).map(
-        ([key, name]) =>
-          name && (
-            <div key={key} className="mb-4">
-              <label className="block text-gray-600 mb-1">{name}</label>
-              <select
-                value={selectedOptions[key]}
-                onChange={(e) => handleOptionChange(key, e.target.value)}
-                className="p-2 border border-gray-300 rounded w-full"
-              >
-                <option value="">Seçin</option>
-                {getFilteredOptions(key).map((optionValue) => (
-                  <option key={optionValue} value={optionValue}>
-                    {optionValue}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )
-      )}
+      {activeKeys.map((key) => (
+        <div key={key} className="mb-4">
+          <label className="block text-gray-600 mb-1">
+            {variantNames[key]}
+          </label>
+          <select
+            value={selectedOptions[key]}
+            onChange={(e) => handleOptionChange(key, e.target.value)}
+            className="p-2 border border-gray-300 rounded w-full"
+          >
+            <option value="">Seçin</option>
+            {filteredOptions[key]?.map((optionValue) => (
+              <option key={optionValue} value={optionValue}>
+                {optionValue}
+              </option>
+            ))}
+          </select>
+        </div>
+      ))}
 
       {selectedVariant && (
         <div className="mt-4">
@@ -100,4 +127,4 @@ const ProductFamilyClient = ({ variants, product }) => {
   );
 };
 
-export default ProductFamilyClient;
+export default React.memo(ProductFamilyClient);
