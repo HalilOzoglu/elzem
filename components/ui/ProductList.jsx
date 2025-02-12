@@ -41,6 +41,7 @@ const ProductCardComponent = React.memo(({ product }) => {
     </Link>
   );
 });
+ProductCard.displayName = "ProductCard";
 
 // Ürün Ailesi Kartı Komponenti
 const FamilyCardComponent = React.memo(({ family }) => {
@@ -71,6 +72,7 @@ const FamilyCardComponent = React.memo(({ family }) => {
     </Link>
   );
 });
+FamilyCard.displayName = "FamilyCard";
 
 // Kategori Bölümü Komponenti
 const CategorySection = ({ category, products: initialProducts }) => {
