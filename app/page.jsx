@@ -15,13 +15,13 @@ async function getCategoriesWithProducts() {
       return null;
     }
 
-    const products = await Product.find({})
+    let products = await Product.find({})
       .select(
         "productCategory productName productPrice productDetail productCount productSku"
       )
       .lean();
 
-    const families = await Family.find({})
+    let families = await Family.find({})
       .select(
         "familyName familyCategory familyDetail familyCode familyBasePrice"
       )
@@ -32,11 +32,11 @@ async function getCategoriesWithProducts() {
       return {};
     }
 
-    const categoryMap = {};
+    let categoryMap = {};
 
     // Product'ları işle ve _id'yi string'e çevir
     products.forEach((product) => {
-      const category = product.productCategory;
+      let category = product.productCategory;
       if (!categoryMap[category]) {
         categoryMap[category] = [];
       }
@@ -49,7 +49,7 @@ async function getCategoriesWithProducts() {
 
     // Family'leri işle ve _id'yi string'e çevir
     families.forEach((family) => {
-      const category = family.familyCategory;
+      let category = family.familyCategory;
       if (!categoryMap[category]) {
         categoryMap[category] = [];
       }
