@@ -47,11 +47,19 @@ const CartPage = () => {
               </div>
               <div className="text-right">
                 <p className="text-xl font-bold">
+                  {new Intl.NumberFormat("tr-TR", {
+                    style: "currency",
+                    currency: "TRY",
+                  }).format(
+                    item.quantity * (item.price || item.productPrice || 0)
+                  )}
+                </p>
+                <p className="text-sm text-gray-500">
                   {item.quantity} x{" "}
                   {new Intl.NumberFormat("tr-TR", {
                     style: "currency",
                     currency: "TRY",
-                  }).format(item.price)}
+                  }).format(item.price || item.productPrice)}
                 </p>
               </div>
               <button
