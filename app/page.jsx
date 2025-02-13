@@ -8,7 +8,12 @@ import mongoose from "mongoose";
 async function getCategoriesWithProducts() {
   try {
     await dbConnect();
-    if (!mongoose.connection.readyState) return null;
+
+    // Veritabanı bağlantısını kontrol et
+    if (!mongoose.connection.readyState) {
+      console.error("Veritabanı bağlantısı yok");
+      return null;
+    }
 
     let products = await Product.find({})
       .select(
@@ -22,26 +27,35 @@ async function getCategoriesWithProducts() {
       )
       .lean();
 
-    if (products.length === 0 && families.length === 0) return {};
+    // Eğer hiç ürün yoksa boş obje dön
+    if (products.length === 0 && families.length === 0) {
+      return {};
+    }
 
     let categoryMap = {};
 
+    // Product'ları işle ve _id'yi string'e çevir
     products.forEach((product) => {
       let category = product.productCategory;
-      if (!categoryMap[category]) categoryMap[category] = [];
+      if (!categoryMap[category]) {
+        categoryMap[category] = [];
+      }
       categoryMap[category].push({
         ...product,
-        _id: product._id.toString(),
+        _id: product._id.toString(), // ObjectId'yi string'e çevir
         type: "product",
       });
     });
 
+    // Family'leri işle ve _id'yi string'e çevir
     families.forEach((family) => {
       let category = family.familyCategory;
-      if (!categoryMap[category]) categoryMap[category] = [];
+      if (!categoryMap[category]) {
+        categoryMap[category] = [];
+      }
       categoryMap[category].push({
         ...family,
-        _id: family._id.toString(),
+        _id: family._id.toString(), // ObjectId'yi string'e çevir
         productName: family.familyName,
         productCategory: family.familyCategory,
         productDetail: family.familyDetail,
@@ -51,18 +65,24 @@ async function getCategoriesWithProducts() {
       });
     });
 
+    // Tüm datastructure'ı JSON'a çevir ve geri parse et
+    // Bu, tüm MongoDB özel tiplerini plain JavaScript objelerine çevirir
     return JSON.parse(JSON.stringify(categoryMap));
   } catch (error) {
     console.error("Veritabanı hatası:", error);
-    return null;
+    throw error;
   }
 }
+export default async function Home() {
+  let categoryData;
 
-export async function getServerSideProps() {
-  let categoryData = await getCategoriesWithProducts();
-  return { props: { data: categoryData } };
-}
+  try {
+    categoryData = await getCategoriesWithProducts();
+    console.log("CategoryData:", categoryData); // Debug için
+  } catch (error) {
+    console.error("Veri çekme hatası:", error);
+    categoryData = null;
+  }
 
-export default function Home({ data }) {
-  return <ProductList data={data} />;
+  return <ProductList data={categoryData} />;
 }
