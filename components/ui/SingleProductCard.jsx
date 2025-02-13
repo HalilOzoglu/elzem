@@ -3,7 +3,6 @@ import Image from "next/image";
 
 const SingleProductCard = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
-
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "currency",
     currency: "TRY",
