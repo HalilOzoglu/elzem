@@ -30,7 +30,8 @@
     ".next/types/**/*.ts",
     "components/ui/singleproduct.jsx",
     "components/ui/productadd.jsx",
-    "app/page.jsx"
+    "app/page.jsx",
+    "components/navbar.jsx"
   ],
   "exclude": ["node_modules"]
 }
