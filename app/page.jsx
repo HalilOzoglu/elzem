@@ -5,11 +5,13 @@ import dbConnect from "@/utils/dbConnect";
 import ProductList from "@/components/ui/ProductList";
 import mongoose from "mongoose";
 
+// Dinamik davranışı zorla
+export const dynamic = "force-dynamic"; // Bu satırı ekleyin
+
 async function getCategoriesWithProducts() {
   try {
     await dbConnect();
 
-    // Veritabanı bağlantısını kontrol et
     if (!mongoose.connection.readyState) {
       console.error("Veritabanı bağlantısı yok");
       return null;
@@ -27,35 +29,28 @@ async function getCategoriesWithProducts() {
       )
       .lean();
 
-    // Eğer hiç ürün yoksa boş obje dön
     if (products.length === 0 && families.length === 0) {
       return {};
     }
 
     let categoryMap = {};
 
-    // Product'ları işle ve _id'yi string'e çevir
     products.forEach((product) => {
       let category = product.productCategory;
-      if (!categoryMap[category]) {
-        categoryMap[category] = [];
-      }
+      categoryMap[category] = categoryMap[category] || [];
       categoryMap[category].push({
         ...product,
-        _id: product._id.toString(), // ObjectId'yi string'e çevir
+        _id: product._id.toString(),
         type: "product",
       });
     });
 
-    // Family'leri işle ve _id'yi string'e çevir
     families.forEach((family) => {
       let category = family.familyCategory;
-      if (!categoryMap[category]) {
-        categoryMap[category] = [];
-      }
+      categoryMap[category] = categoryMap[category] || [];
       categoryMap[category].push({
         ...family,
-        _id: family._id.toString(), // ObjectId'yi string'e çevir
+        _id: family._id.toString(),
         productName: family.familyName,
         productCategory: family.familyCategory,
         productDetail: family.familyDetail,
@@ -65,20 +60,18 @@ async function getCategoriesWithProducts() {
       });
     });
 
-    // Tüm datastructure'ı JSON'a çevir ve geri parse et
-    // Bu, tüm MongoDB özel tiplerini plain JavaScript objelerine çevirir
     return JSON.parse(JSON.stringify(categoryMap));
   } catch (error) {
     console.error("Veritabanı hatası:", error);
     throw error;
   }
 }
+
 export default async function Home() {
   let categoryData;
 
   try {
     categoryData = await getCategoriesWithProducts();
-    console.log("CategoryData:", categoryData); // Debug için
   } catch (error) {
     console.error("Veri çekme hatası:", error);
     categoryData = null;
