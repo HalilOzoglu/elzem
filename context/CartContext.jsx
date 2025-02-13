@@ -9,7 +9,6 @@ export const CartProvider = ({ children }) => {
   const addToCart = (item, quantity) => {
     const numericQuantity = parseInt(quantity) || 1;
 
-    // Varyant varsa, ilgili alanları ana objeye çekiyoruz
     const mergedItem = item.variant
       ? {
           ...item,
@@ -23,11 +22,13 @@ export const CartProvider = ({ children }) => {
             v3: item.variant.v3,
           },
         }
-      : item;
+      : {
+          ...item,
+          price: item.productPrice,
+        };
 
     setCart((prevCart) => {
       const itemIndex = prevCart.findIndex((cartItem) => {
-        // Varyantlı ürünlerde sku üzerinden kontrol
         if (mergedItem.sku) {
           return cartItem.sku === mergedItem.sku;
         }
