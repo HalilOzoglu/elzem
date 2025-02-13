@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useCallback } from "react";
+import Image from "next/image";
 
 const ProductFamilyClient = ({ variants, product }) => {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -7,6 +8,8 @@ const ProductFamilyClient = ({ variants, product }) => {
     v2: "",
     v3: "",
   });
+
+  const [quantity, setQuantity] = useState(1);
 
   const variantNames = useMemo(
     () => ({
@@ -74,53 +77,117 @@ const ProductFamilyClient = ({ variants, product }) => {
     [activeKeys]
   );
 
-  return (
-    <div>
-      <h2 className="text-lg font-semibold text-gray-700 mb-2">Varyantlar</h2>
+  const handleQuantityChange = useCallback(
+    (e) => {
+      const value = parseInt(e.target.value);
+      if (selectedVariant && value > 0 && value <= selectedVariant.count) {
+        setQuantity(value);
+      }
+    },
+    [selectedVariant]
+  );
 
-      {activeKeys.map((key) => (
-        <div key={key} className="mb-4">
-          <label className="block text-gray-600 mb-1">
-            {variantNames[key]}
-          </label>
-          <select
-            value={selectedOptions[key]}
-            onChange={(e) => handleOptionChange(key, e.target.value)}
-            className="p-2 border border-gray-300 rounded w-full"
-          >
-            <option value="">Seçin</option>
-            {filteredOptions[key]?.map((optionValue) => (
-              <option key={optionValue} value={optionValue}>
-                {optionValue}
-              </option>
-            ))}
-          </select>
-        </div>
-      ))}
+  const handleAddToCart = useCallback(() => {
+    if (selectedVariant) {
+      console.log("Sepete Ekleniyor:", {
+        variant: selectedVariant,
+        quantity: quantity,
+      });
+    }
+  }, [selectedVariant, quantity]);
+
+  return (
+    <div className="space-y-6">
+      <div className="relative w-full aspect-square">
+        <Image
+          src="/placeholder-product.jpg"
+          alt={product.name}
+          fill
+          className="object-cover rounded-lg"
+        />
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold text-gray-700 mb-2">Varyantlar</h2>
+
+        {activeKeys.map((key) => (
+          <div key={key} className="mb-4">
+            <label className="block text-gray-600 mb-1">
+              {variantNames[key]}
+            </label>
+            <select
+              value={selectedOptions[key]}
+              onChange={(e) => handleOptionChange(key, e.target.value)}
+              className="p-2 border border-gray-300 rounded w-full"
+            >
+              <option value="">Seçin</option>
+              {filteredOptions[key]?.map((optionValue) => (
+                <option key={optionValue} value={optionValue}>
+                  {optionValue}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
 
       {selectedVariant && (
-        <div className="mt-4">
-          <h3 className="text-md font-semibold text-gray-700 mb-2">
-            Seçilen Varyant Bilgileri
-          </h3>
-          <ul className="space-y-2">
-            <li className="flex justify-between">
-              <span className="text-gray-600">SKU</span>
-              <span className="text-gray-800">{selectedVariant.sku}</span>
-            </li>
-            <li className="flex justify-between">
-              <span className="text-gray-600">Fiyat</span>
-              <span className="text-gray-800">{selectedVariant.price} TL</span>
-            </li>
-            <li className="flex justify-between">
-              <span className="text-gray-600">Kutu</span>
-              <span className="text-gray-800">{selectedVariant.box}</span>
-            </li>
-            <li className="flex justify-between">
-              <span className="text-gray-600">Stok</span>
-              <span className="text-gray-800">{selectedVariant.count}</span>
-            </li>
-          </ul>
+        <div className="space-y-4">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="text-md font-semibold text-gray-700 mb-2">
+              Seçilen Varyant Bilgileri
+            </h3>
+            <ul className="space-y-2">
+              <li className="flex justify-between">
+                <span className="text-gray-600">SKU</span>
+                <span className="text-gray-800">{selectedVariant.sku}</span>
+              </li>
+              <li className="flex justify-between">
+                <span className="text-gray-600">Fiyat</span>
+                <span className="text-gray-800 font-semibold">
+                  {new Intl.NumberFormat("tr-TR", {
+                    style: "currency",
+                    currency: "TRY",
+                  }).format(selectedVariant.price)}
+                </span>
+              </li>
+              <li className="flex justify-between">
+                <span className="text-gray-600">Kutu</span>
+                <span className="text-gray-800">{selectedVariant.box}</span>
+              </li>
+              <li className="flex justify-between">
+                <span className="text-gray-600">Stok</span>
+                <span className="text-gray-800">{selectedVariant.count}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label
+                htmlFor="variant-quantity"
+                className="block text-sm text-gray-600 mb-1"
+              >
+                Adet
+              </label>
+              <input
+                type="number"
+                id="variant-quantity"
+                min="1"
+                max={selectedVariant.count}
+                value={quantity}
+                onChange={handleQuantityChange}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+            <button
+              onClick={handleAddToCart}
+              disabled={!selectedVariant || selectedVariant.count < 1}
+              className="flex-1 bg-blue-600 text-white rounded py-2 px-4 hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {selectedVariant.count < 1 ? "Stokta Yok" : "Sepete Ekle"}
+            </button>
+          </div>
         </div>
       )}
     </div>

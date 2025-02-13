@@ -1,13 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
+import Image from "next/image";
 
 const SingleProductCard = ({ product }) => {
+  const [quantity, setQuantity] = useState(1);
+
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "currency",
     currency: "TRY",
   }).format(product.productPrice || product.price);
 
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (value > 0 && value <= (product.productCount || product.count)) {
+      setQuantity(value);
+    }
+  };
+
   return (
     <div className="mb-6">
+      <div className="mb-4 relative w-full aspect-square">
+        <Image
+          src="/placeholder-product.jpg" // Varsayılan ürün görseli
+          alt={product.productName || product.name}
+          fill
+          className="object-cover rounded-lg"
+        />
+      </div>
+
       <div className="flex items-center justify-between">
         <span className="text-2xl font-bold text-blue-600">
           {formattedPrice}
@@ -16,6 +35,7 @@ const SingleProductCard = ({ product }) => {
           SKU: {product.productSku || product.sku}
         </span>
       </div>
+
       {(product.productCount || product.count) && (
         <div className="mt-2 text-sm text-gray-600">
           Stok Durumu:{" "}
@@ -24,6 +44,32 @@ const SingleProductCard = ({ product }) => {
           </span>
         </div>
       )}
+
+      <div className="mt-4 flex gap-4">
+        <div className="flex-1">
+          <label
+            htmlFor="quantity"
+            className="block text-sm text-gray-600 mb-1"
+          >
+            Adet
+          </label>
+          <input
+            type="number"
+            id="quantity"
+            min="1"
+            max={product.productCount || product.count}
+            value={quantity}
+            onChange={handleQuantityChange}
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+        <button
+          className="flex-1 bg-blue-600 text-white rounded py-2 px-4 hover:bg-blue-700 transition-colors"
+          onClick={() => console.log("Sepete Ekle:", quantity)}
+        >
+          Sepete Ekle
+        </button>
+      </div>
     </div>
   );
 };
