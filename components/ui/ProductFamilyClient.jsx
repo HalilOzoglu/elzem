@@ -100,8 +100,17 @@ const ProductFamilyClient = ({ variants, product }) => {
 
   const handleAddToCart = useCallback(() => {
     if (selectedVariant) {
-      addToCart({ ...product, variant: selectedVariant }, quantity);
-      setQuantity("");
+      const cartItem = {
+        ...product,
+        variant: selectedVariant,
+        // Varyant bilgilerini ana seviyeye taşıyoruz
+        sku: selectedVariant.sku,
+        price: selectedVariant.price,
+        count: selectedVariant.count,
+        box: selectedVariant.box,
+      };
+      addToCart(cartItem, quantity);
+      setQuantity("1"); // Varsayılan değer olarak 1'e çekiyoruz
     }
   }, [selectedVariant, quantity, product, addToCart]);
 

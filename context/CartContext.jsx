@@ -8,28 +8,52 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (item, quantity) => {
     const numericQuantity = parseInt(quantity) || 1;
+
+    // Varyant varsa, ilgili alanları ana objeye çekiyoruz
+    const mergedItem = item.variant
+      ? {
+          ...item,
+          sku: item.variant.sku,
+          price: item.variant.price,
+          count: item.variant.count,
+          box: item.variant.box,
+          variantInfo: {
+            v1: item.variant.v1,
+            v2: item.variant.v2,
+            v3: item.variant.v3,
+          },
+        }
+      : item;
+
     setCart((prevCart) => {
-      // Eğer sepette aynı ürün varsa adeti güncelle, yoksa ekle.
-      const itemIndex = prevCart.findIndex(
-        (cartItem) =>
-          cartItem.id === item._id ||
-          cartItem.sku === item.productSku ||
-          cartItem.sku === item.sku
-      );
+      const itemIndex = prevCart.findIndex((cartItem) => {
+        // Varyantlı ürünlerde sku üzerinden kontrol
+        if (mergedItem.sku) {
+          return cartItem.sku === mergedItem.sku;
+        }
+        return cartItem._id === mergedItem._id;
+      });
+
       if (itemIndex > -1) {
         const updatedCart = [...prevCart];
         updatedCart[itemIndex].quantity += numericQuantity;
         return updatedCart;
-      } else {
-        return [...prevCart, { ...item, quantity: numericQuantity }];
       }
+      return [...prevCart, { ...mergedItem, quantity: numericQuantity }];
     });
   };
 
-  const cartItemsCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const removeFromCart = (itemSku) => {
+    setCart((prevCart) => prevCart.filter((item) => item.sku !== itemSku));
+  };
+
+  // Sepet simgesinde gösterilecek sayı, ürün adedine göre değil benzersiz ürün sayısına göre hesaplanır.
+  const cartItemsCount = cart.length;
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, cartItemsCount }}>
+    <CartContext.Provider
+      value={{ cart, addToCart, removeFromCart, cartItemsCount }}
+    >
       {children}
     </CartContext.Provider>
   );

@@ -27,6 +27,11 @@ const SingleProductCard = ({ product }) => {
     }
   };
 
+  const handleAddToCart = () => {
+    addToCart(product, quantity);
+    setQuantity("1");
+  };
+
   return (
     <div className="mb-6 md:flex md:gap-6">
       <div className="relative w-full aspect-square md:w-1/2">
@@ -76,10 +81,7 @@ const SingleProductCard = ({ product }) => {
           </div>
           <button
             className="flex-1 bg-blue-600 text-white rounded py-2 px-4 hover:bg-blue-700 transition-colors"
-            onClick={() => {
-              addToCart(product, quantity);
-              setQuantity("");
-            }}
+            onClick={handleAddToCart}
           >
             Sepete Ekle
           </button>
