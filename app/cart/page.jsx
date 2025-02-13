@@ -47,6 +47,7 @@ const CartPage = () => {
               </div>
               <div className="text-right">
                 <p className="text-xl font-bold">
+                  {item.quantity} x{" "}
                   {new Intl.NumberFormat("tr-TR", {
                     style: "currency",
                     currency: "TRY",

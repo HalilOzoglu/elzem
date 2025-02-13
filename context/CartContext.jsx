@@ -1,10 +1,27 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+
+  // Uygulama açılır açılmaz localStorage'dan sepet verilerini oku
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      try {
+        setCart(JSON.parse(storedCart));
+      } catch (error) {
+        console.error("Sepet verileri okunurken hata oluştu:", error);
+      }
+    }
+  }, []);
+
+  // Sepet her güncellendiğinde localStorage'e kaydet
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (item, quantity) => {
     const numericQuantity = parseInt(quantity) || 1;
