@@ -49,6 +49,8 @@ export async function GET(request) {
         brand: product.productBrand,
         category: product.productCategory,
         type: "product",
+        productSku: product.productSku,
+        productName: product.productName,
       })),
       ...families.map((family) => ({
         _id: family._id.toString(),
@@ -57,6 +59,8 @@ export async function GET(request) {
         brand: family.familyBrand,
         category: family.familyCategory,
         type: "family",
+        productSku: family.familyCode,
+        productName: family.familyName,
       })),
     ].slice(0, 10); // Toplam sonuç sayısını 10 ile sınırla
 
