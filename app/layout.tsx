@@ -8,7 +8,7 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
-
+import { CartProvider } from "@/context/CartContext";
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -48,12 +48,14 @@ export default function RootLayout({
             forcedTheme: "light",
           }}
         >
-          <div className="relative flex flex-col h-screen">
-            <Navbar />
-            <main className="container mx-auto  pt-8 flex-grow">
-              {children}
-            </main>
-          </div>
+          <CartProvider>
+            <div className="relative flex flex-col h-screen">
+              <Navbar />
+              <main className="container mx-auto  pt-8 flex-grow">
+                {children}
+              </main>
+            </div>
+          </CartProvider>
         </Providers>
       </body>
     </html>

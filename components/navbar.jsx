@@ -16,19 +16,14 @@ import React, { useState, useEffect } from "react";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
-  Logo,
-} from "@/components/icons";
+import { SearchIcon, Logo, CartIcon } from "@/components/icons";
+import { useCart } from "@/context/CartContext";
 
 export const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const { cartItemsCount } = useCart();
 
   useEffect(() => {
     if (searchTerm) {
@@ -84,6 +79,7 @@ export const Navbar = () => {
               <NextLink
                 key={result._id}
                 href={`/products/${result.code}`}
+                onClick={() => setSearchTerm("")}
                 className="block px-4 py-2 hover:bg-default-100 transition-colors"
               >
                 <div className="flex items-center gap-2">
@@ -130,6 +126,17 @@ export const Navbar = () => {
 
       <NavbarContent className="flex basis-1/5 sm:basis-full" justify="center">
         {searchInput}
+      </NavbarContent>
+
+      <NavbarContent className="flex basis-1/5 sm:basis-full" justify="end">
+        <NextLink href="/cart" className="relative">
+          <CartIcon className="w-6 h-6 text-gray-800" />
+          {cartItemsCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1">
+              {cartItemsCount}
+            </span>
+          )}
+        </NextLink>
       </NavbarContent>
     </HeroUINavbar>
   );
