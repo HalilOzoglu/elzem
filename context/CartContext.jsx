@@ -65,12 +65,30 @@ export const CartProvider = ({ children }) => {
     setCart((prevCart) => prevCart.filter((item) => item.sku !== itemSku));
   };
 
-  // Sepet simgesinde gösterilecek sayı, ürün adedine göre değil benzersiz ürün sayısına göre hesaplanır.
+  // Sepetteki belirli ürünün adet bilgisini güncelleyen fonksiyon
+  const updateCartQuantity = (itemSku, newQuantity) => {
+    setCart((prevCart) =>
+      prevCart.map((item) => {
+        if (item.sku === itemSku) {
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      })
+    );
+  };
+
+  // Sepet simgesinde gösterilecek sayı, benzersiz ürün sayısına göre hesaplanır.
   const cartItemsCount = cart.length;
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, cartItemsCount }}
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        updateCartQuantity,
+        cartItemsCount,
+      }}
     >
       {children}
     </CartContext.Provider>
