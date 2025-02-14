@@ -75,7 +75,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-4">
       <ProductList data={categoryData} />
     </div>
   );

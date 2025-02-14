@@ -9,6 +9,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/context/CartContext";
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -34,10 +35,15 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
+      </head>
       <body
         className={clsx(
-          "min-h-screen bg-inherit font-sans antialiased",
+          "min-h-screen bg-inherit font-sans antialiased overflow-x-hidden",
           fontSans.variable
         )}
       >
@@ -49,9 +55,9 @@ export default function RootLayout({
           }}
         >
           <CartProvider>
-            <div className="relative flex flex-col h-screen">
+            <div className="relative w-full flex flex-col h-screen">
               <Navbar />
-              <main className="container mx-auto  pt-8 flex-grow">
+              <main className="container mx-auto pt-8 flex-grow">
                 {children}
               </main>
             </div>

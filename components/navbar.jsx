@@ -51,7 +51,7 @@ export const Navbar = () => {
   }, [searchTerm]);
 
   const searchInput = (
-    <div className="relative w-64">
+    <div className="relative w-full">
       <Input
         aria-label="Search"
         classNames={{
@@ -99,45 +99,45 @@ export const Navbar = () => {
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
-            <p className="font-bold text-inherit">ACME</p>
+      {/* Mobil Görünüm */}
+      <div className="lg:hidden w-full flex flex-col items-center">
+        <div className="w-full flex justify-center py-1">
+          <NextLink href="/">
+            <img src="/elzemlogo.svg" alt="Elzem Logo" className=" pt-8 w-40" />
           </NextLink>
-        </NavbarBrand>
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href}>
-              <NextLink
-                className={clsx(
-                  linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium"
-                )}
-                color="foreground"
-                href={item.href}
-              >
-                {item.label}
-              </NextLink>
-            </NavbarItem>
-          ))}
-        </ul>
-      </NavbarContent>
+        </div>
+        <div className="w-full flex gap-4 items-center">
+          <div className="flex-1">{searchInput}</div>
+          <NextLink href="/cart" className="relative justify-end">
+            <CartIcon className="w-6 h-6 text-gray-800" />
+            {cartItemsCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1">
+                {cartItemsCount}
+              </span>
+            )}
+          </NextLink>
+        </div>
+      </div>
 
-      <NavbarContent className="flex basis-1/5 sm:basis-full" justify="center">
-        {searchInput}
-      </NavbarContent>
-
-      <NavbarContent className="flex basis-1/5 sm:basis-full" justify="end">
-        <NextLink href="/cart" className="relative">
-          <CartIcon className="w-6 h-6 text-gray-800" />
-          {cartItemsCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1">
-              {cartItemsCount}
-            </span>
-          )}
-        </NextLink>
-      </NavbarContent>
+      {/* Web Görünüm */}
+      <div className="hidden lg:flex items-center justify-between w-full py-2">
+        <div className="flex-1 flex justify-start">
+          <NextLink href="/">
+            <img src="/elzemlogo.svg" alt="Elzem Logo" className="w-40 h-28" />
+          </NextLink>
+        </div>
+        <div className="flex-1 flex justify-center">{searchInput}</div>
+        <div className="flex-1 flex justify-end">
+          <NextLink href="/cart" className="relative mr-4">
+            <CartIcon className="w-6 h-6 text-gray-800" />
+            {cartItemsCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1">
+                {cartItemsCount}
+              </span>
+            )}
+          </NextLink>
+        </div>
+      </div>
     </HeroUINavbar>
   );
 };
