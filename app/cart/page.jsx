@@ -125,7 +125,7 @@ const CartPage = () => {
         <div className="space-y-6">
           {cart.map((item) => (
             <CartItem
-              key={item.sku}
+              key={item.sku || item.productSku}
               item={item}
               updateCartQuantity={updateCartQuantity}
               removeFromCart={removeFromCart}

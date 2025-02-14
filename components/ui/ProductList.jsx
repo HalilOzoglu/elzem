@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
@@ -116,11 +116,17 @@ const CategorySection = ({ category, products: initialProducts }) => {
 };
 
 const ProductList = ({ data }) => {
+  useEffect(() => {
+    if (!data) {
+      window.location.reload();
+    }
+  }, [data]);
+
   if (!data) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-gray-600">
-          Ürünler yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.
+          Ürünler yüklenirken bir hata oluştu. Sayfa yenileniyor...
         </div>
       </div>
     );

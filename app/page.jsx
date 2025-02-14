@@ -10,13 +10,10 @@ export const dynamic = "force-dynamic"; // Bu satırı ekleyin
 
 async function getCategoriesWithProducts() {
   try {
+    // Bağlantıyı kur, eğer başarısız olursa hata fırlatacaktır.
     await dbConnect();
 
-    if (!mongoose.connection.readyState) {
-      console.error("Veritabanı bağlantısı yok");
-      return null;
-    }
-
+    // Bağlantı kontrolünü kaldırdık; bağlantı kurulmuşsa sorgular çalışacaktır.
     let products = await Product.find({})
       .select(
         "productCategory productName productPrice productDetail productCount productSku"
