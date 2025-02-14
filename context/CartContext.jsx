@@ -41,6 +41,7 @@ export const CartProvider = ({ children }) => {
         }
       : {
           ...item,
+          sku: item.productSku,
           price: item.productPrice,
         };
 

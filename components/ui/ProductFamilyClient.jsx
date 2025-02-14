@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import SuccessModal from "./SuccessModal";
 
 const ProductFamilyClient = ({ variants, product }) => {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -11,6 +12,7 @@ const ProductFamilyClient = ({ variants, product }) => {
   });
 
   const [quantity, setQuantity] = useState("1");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const { addToCart } = useCart();
 
   const variantNames = useMemo(
@@ -111,6 +113,7 @@ const ProductFamilyClient = ({ variants, product }) => {
       };
       addToCart(cartItem, quantity);
       setQuantity("1"); // Varsayılan değer olarak 1'e çekiyoruz
+      setShowSuccessModal(true);
     }
   }, [selectedVariant, quantity, product, addToCart]);
 
@@ -212,6 +215,12 @@ const ProductFamilyClient = ({ variants, product }) => {
           </div>
         )}
       </div>
+      {showSuccessModal && (
+        <SuccessModal
+          message={`Ürün sepete başarıyla eklendi!`}
+          onClose={() => setShowSuccessModal(false)}
+        />
+      )}
     </div>
   );
 };
