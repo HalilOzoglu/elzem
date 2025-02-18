@@ -121,7 +121,11 @@ const ProductFamilyClient = ({ variants, product }) => {
     <div className="md:flex md:gap-6">
       <div className="relative w-full aspect-square md:w-1/2">
         <Image
-          src="/placeholder-product.jpg"
+          src={
+            product.familyCode
+              ? `/${product.familyCode}.webp`
+              : "/placeholder-product.jpg"
+          }
           alt={product.name}
           fill
           className="object-cover rounded-lg"
