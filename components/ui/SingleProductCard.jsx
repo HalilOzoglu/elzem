@@ -40,7 +40,11 @@ const SingleProductCard = ({ product }) => {
       <div className="mb-6 md:flex md:gap-6">
         <div className="relative w-full aspect-square md:w-1/2">
           <Image
-            src="/placeholder-product.jpg" // Varsayılan ürün görseli
+            src={
+              product.productSku
+                ? `/${product.productSku}.webp`
+                : "/placeholder-product.jpg"
+            }
             alt={product.productName || product.name}
             fill
             className="object-cover rounded-lg"
