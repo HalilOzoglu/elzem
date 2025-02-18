@@ -56,7 +56,7 @@ const FamilyCard = ({ family }) => {
       <div className="min-h-28 bg-gray-200 flex items-center justify-center relative">
         <Image
           src={`/${family.familyCode}.webp`}
-          alt={family.productName}
+          alt={family.familyName}
           fill
           className="object-cover"
         />
