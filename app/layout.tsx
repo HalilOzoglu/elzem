@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/vercel.svg" />
+        <link rel="apple-touch-icon" href="icons/apple-icon-256x256.png" />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
