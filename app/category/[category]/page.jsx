@@ -44,12 +44,12 @@ export default async function CategoryPage({ params }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-gray-800 mb-8 capitalize">{category}</h1>
-      <div className="grid grid-cols-4 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
         {products.map((item) => (
           item.type === "product" ? (
-            <ProductCard key={item.productSku} product={item} />
+            <ProductCard className="font-light" key={item.productSku} product={item} />
           ) : (
-            <FamilyCard key={item.familyCode} family={item} />
+            <FamilyCard className="font-light" key={item.familyCode} family={item} />
           )
         ))}
       </div>

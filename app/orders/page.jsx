@@ -7,47 +7,51 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  useDisclosure
+  useDisclosure,
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+  Chip,
+  Tooltip
 } from "@heroui/react";
-
-const OrderStatusBadge = ({ status, onClick, isButton = false }) => {
-  const statusColors = {
-    "Hazırlanıyor": "bg-yellow-100 text-yellow-800",
-    "Teslim edilecek": "bg-blue-100 text-blue-800",
-    "Teslim Edildi": "bg-green-100 text-green-800",
-    "İptal Edildi": "bg-red-100 text-red-800",
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+const OrderStatusBadge = ({ status }) => {
+  const statusConfig = {
+    "Hazırlanıyor": {
+      color: "warning",
+      variant: "flat",
+    },
+    "Teslim edilecek": {
+      color: "primary",
+      variant: "flat",
+    },
+    "Teslim Edildi": {
+      color: "success",
+      variant: "flat",
+    },
+    "İptal Edildi": {
+      color: "danger",
+      variant: "flat",
+    },
   };
 
-  const baseClasses = `px-3 py-1 rounded-full text-sm ${statusColors[status]}`;
-  const buttonClasses = isButton ? "cursor-pointer hover:opacity-75" : "";
-
-  if (isButton) {
-    return (
-      <button
-        className={`${baseClasses} ${buttonClasses}`}
-        tabIndex={0}
-        aria-label={`Sipariş durumunu güncelle: ${status}`}
-        onClick={onClick}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            onClick();
-          }
-        }}
-      >
-        {status}
-      </button>
-    );
-  }
+  const config = statusConfig[status] || statusConfig["Hazırlanıyor"];
 
   return (
-    <span className={baseClasses}>
+    <Chip
+      color={config.color}
+      variant={config.variant}
+      size="sm"
+    >
       {status}
-    </span>
+    </Chip>
   );
 };
 
-const StatusUpdateModal = ({ order, onClose, onUpdate }) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+const StatusUpdateModal = ({ isOpen, onClose, order, onUpdate }) => {
   const statuses = [
     "Hazırlanıyor",
     "Teslim edilecek",
@@ -77,146 +81,131 @@ const StatusUpdateModal = ({ order, onClose, onUpdate }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className="text-xl font-bold mb-4">Sipariş Durumunu Güncelle</ModalHeader>
-            <ModalBody>
-              <div className="space-y-2">
-                {statuses.map((status) => (
-                  <button
-                    className={`w-full p-3 rounded text-left hover:bg-gray-100 ${
-                      order.status === status ? "bg-gray-100" : ""
-                    }`}
-                    key={status}
-                    aria-label={`Durumu ${status} olarak güncelle`}
-                    onClick={() => handleStatusUpdate(status)}
-                  >
-                    <OrderStatusBadge status={status} />
-                  </button>
-                ))}
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
-                Kapat
+        <ModalHeader className="flex flex-col gap-1">Sipariş Durumunu Güncelle</ModalHeader>
+        <ModalBody>
+          <div className="grid gap-2">
+            {statuses.map((status) => (
+              <Button
+                key={status}
+                color={status === order?.status ? "primary" : "default"}
+                variant={status === order?.status ? "flat" : "light"}
+                className="w-full justify-start"
+                onClick={() => handleStatusUpdate(status)}
+              >
+                <OrderStatusBadge status={status} />
               </Button>
-            </ModalFooter>
-          </>
-        )}
+            ))}
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="danger" variant="light" onPress={onClose}>
+            Kapat
+          </Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
 };
 
-const OrderDetailsModal = ({ order, onClose }) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+const OrderDetailsModal = ({ isOpen, onClose, order }) => {
+  if (!order) return null;
+
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
       <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className="text-xl font-bold">Sipariş Detayları</ModalHeader>
-            <ModalBody>
-              <div className="flex justify-between items-start mb-4">
-                <OrderStatusBadge status={order.status} />
-              </div>
+        <ModalHeader className="flex flex-col gap-1">
+          Sipariş Detayları
+          <div className="mt-2">
+            <OrderStatusBadge status={order.status} />
+          </div>
+        </ModalHeader>
+        <ModalBody>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <p className="text-sm text-gray-500">Sipariş No</p>
+              <p className="font-medium">{order._id}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Sipariş Tarihi</p>
+              <p className="font-medium">{order.date}</p>
+            </div>
+          </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-500">Sipariş No</p>
-                    <p className="font-medium">{order._id}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Sipariş Tarihi</p>
-                    <p className="font-medium">{order.date}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Kullanıcı ID</p>
-                    <p className="font-medium">{order.userId}</p>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="font-bold mb-2">Ürünler</h3>
-                  <div className="space-y-4">
-                    {order.products.map((product, index) => (
-                      <div
-                        key={index}
-                        className="border rounded p-3 flex justify-between items-center"
-                      >
-                        <div>
-                          <p className="font-medium">{product.name}</p>
-                          <p className="text-sm text-gray-500">SKU: {product.sku}</p>
-                          <p className="text-sm text-gray-500">Adet: {product.count}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold">
-                            {new Intl.NumberFormat("tr-TR", {
-                              style: "currency",
-                              currency: "TRY",
-                            }).format(product.price * product.count)}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Birim: {new Intl.NumberFormat("tr-TR", {
-                              style: "currency",
-                              currency: "TRY",
-                            }).format(product.price)}
-                          </p>
-                        </div>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Ürünler</h3>
+            <Table aria-label="Sipariş ürünleri">
+              <TableHeader>
+                <TableColumn>ÜRÜN</TableColumn>
+                <TableColumn>ADET</TableColumn>
+                <TableColumn>BİRİM FİYAT</TableColumn>
+                <TableColumn>TOPLAM</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {order.products.map((product, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{product.name}</p>
+                        <p className="text-sm text-gray-500">SKU: {product.sku}</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="border-t pt-4 mt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold">Toplam:</span>
-                    <span className="font-bold">
+                    </TableCell>
+                    <TableCell>{product.count}</TableCell>
+                    <TableCell>
                       {new Intl.NumberFormat("tr-TR", {
                         style: "currency",
                         currency: "TRY",
-                      }).format(order.total)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
-                Kapat
-              </Button>
-            </ModalFooter>
-          </>
-        )}
+                      }).format(product.price)}
+                    </TableCell>
+                    <TableCell>
+                      {new Intl.NumberFormat("tr-TR", {
+                        style: "currency",
+                        currency: "TRY",
+                      }).format(product.price * product.count)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="flex justify-between items-center mt-6 pt-4 border-t">
+            <span className="font-bold text-lg">Toplam:</span>
+            <span className="font-bold text-lg">
+              {new Intl.NumberFormat("tr-TR", {
+                style: "currency",
+                currency: "TRY",
+              }).format(order.total)}
+            </span>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="danger" variant="light" onPress={onClose}>
+            Kapat
+          </Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
 };
 
-const DeleteConfirmModal = ({ order, onClose, onConfirm }) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+const DeleteConfirmModal = ({ isOpen, onClose, order, onConfirm }) => {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpen} onClose={onClose} size="sm">
       <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className="text-xl font-bold mb-4">Siparişi Sil</ModalHeader>
-            <ModalBody>
-              <p className="mb-4">Bu siparişi silmek istediğinizden emin misiniz?</p>
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
-                İptal
-              </Button>
-              <Button color="primary" onPress={() => onConfirm(order._id)}>
-                Sil
-              </Button>
-            </ModalFooter>
-          </>
-        )}
+        <ModalHeader className="flex flex-col gap-1">Siparişi Sil</ModalHeader>
+        <ModalBody>
+          <p>Bu siparişi silmek istediğinizden emin misiniz?</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="default" variant="light" onPress={onClose}>
+            İptal
+          </Button>
+          <Button color="danger" onPress={() => onConfirm(order._id)}>
+            Sil
+          </Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
@@ -226,9 +215,26 @@ const OrdersPage = () => {
   const [orders, setOrders] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  
+  const {
+    isOpen: isDetailsOpen,
+    onOpen: onDetailsOpen,
+    onClose: onDetailsClose
+  } = useDisclosure();
+
+  const {
+    isOpen: isStatusOpen,
+    onOpen: onStatusOpen,
+    onClose: onStatusClose
+  } = useDisclosure();
+
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose
+  } = useDisclosure();
+
   const [selectedOrder, setSelectedOrder] = React.useState(null);
-  const [statusUpdateOrder, setStatusUpdateOrder] = React.useState(null);
-  const [deleteConfirmOrder, setDeleteConfirmOrder] = React.useState(null);
 
   React.useEffect(() => {
     fetchOrders();
@@ -267,18 +273,34 @@ const OrdersPage = () => {
         throw new Error("Sipariş silinemedi");
       }
 
-      // Siparişi listeden kaldır
       setOrders(orders.filter(order => order._id !== orderId));
-      setDeleteConfirmOrder(null);
+      onDeleteClose();
     } catch (error) {
-      alert("Sipariş silinirken bir hata oluştu");
+      console.error("Sipariş silinirken bir hata oluştu", error);
+    }
+  };
+
+  const handleOrderSelect = (order, action) => {
+    setSelectedOrder(order);
+    switch (action) {
+      case 'details':
+        onDetailsOpen();
+        break;
+      case 'status':
+        onStatusOpen();
+        break;
+      case 'delete':
+        onDeleteOpen();
+        break;
     }
   };
 
   if (loading) {
     return (
       <div className="container mx-auto p-4">
-        <div className="text-center">Yükleniyor...</div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
       </div>
     );
   }
@@ -286,7 +308,7 @@ const OrdersPage = () => {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg">
           {error}
         </div>
       </div>
@@ -298,84 +320,90 @@ const OrdersPage = () => {
       <h1 className="text-3xl font-bold mb-6">Siparişler</h1>
 
       {orders.length === 0 ? (
-        <p>Henüz sipariş bulunmamaktadır.</p>
-      ) : (
-        <div className="space-y-6">
-          {orders.map((order) => (
-            <div
-              key={order._id}
-              className="border rounded-lg shadow-sm p-6 space-y-4"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm text-gray-500">
-                    Sipariş Tarihi: {order.date}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Sipariş No: {order._id}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    aria-label="Sipariş detaylarını görüntüle"
-                    onClick={() => setSelectedOrder(order)}
-                  >
-                    Detaylar
-                  </button>
-                  <OrderStatusBadge
-                    status={order.status}
-                    isButton={true}
-                    onClick={() => setStatusUpdateOrder(order)}
-                  />
-                  <button
-                    className="text-red-600 hover:text-red-800"
-                    aria-label="Siparişi sil"
-                    onClick={() => setDeleteConfirmOrder(order)}
-                  >
-                    Sil
-                  </button>
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <div className="flex justify-between items-center">
-                  <span className="font-bold">Toplam:</span>
-                  <span className="font-bold">
-                    {new Intl.NumberFormat("tr-TR", {
-                      style: "currency",
-                      currency: "TRY",
-                    }).format(order.total)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="text-center py-8 text-gray-500">
+          Henüz sipariş bulunmamaktadır.
         </div>
+      ) : (
+        <Table aria-label="Siparişler listesi">
+          <TableHeader>
+            <TableColumn>SİPARİŞ NO</TableColumn>
+            <TableColumn>TARİH</TableColumn>
+            <TableColumn>DURUM</TableColumn>
+            <TableColumn>TOPLAM</TableColumn>
+            <TableColumn>İŞLEMLER</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => (
+              <TableRow key={order._id}>
+                <TableCell>{order._id}</TableCell>
+                <TableCell>{order.date}</TableCell>
+                <TableCell>
+                  <OrderStatusBadge status={order.status} />
+                </TableCell>
+                <TableCell>
+                  {new Intl.NumberFormat("tr-TR", {
+                    style: "currency",
+                    currency: "TRY",
+                  }).format(order.total)}
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Tooltip content="Detaylar">
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        onClick={() => handleOrderSelect(order, 'details')}
+                      >
+                        <EyeIcon className="h-5 w-5" />
+                      </Button>
+                    </Tooltip>
+                    <Button
+                      size="sm"
+                      color="primary"
+                      variant="flat"
+                      onClick={() => handleOrderSelect(order, 'status')}
+                    >
+                      Durum Güncelle
+                    </Button>
+                    <Tooltip content="Sil" color="danger">
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        color="danger"
+                        variant="light"
+                        onClick={() => handleOrderSelect(order, 'delete')}
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </Button>
+                    </Tooltip>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
 
-      {selectedOrder && (
-        <OrderDetailsModal
-          order={selectedOrder}
-          onClose={() => setSelectedOrder(null)}
-        />
-      )}
+      <OrderDetailsModal
+        isOpen={isDetailsOpen}
+        onClose={onDetailsClose}
+        order={selectedOrder}
+      />
 
-      {statusUpdateOrder && (
-        <StatusUpdateModal
-          order={statusUpdateOrder}
-          onClose={() => setStatusUpdateOrder(null)}
-          onUpdate={handleStatusUpdate}
-        />
-      )}
+      <StatusUpdateModal
+        isOpen={isStatusOpen}
+        onClose={onStatusClose}
+        order={selectedOrder}
+        onUpdate={handleStatusUpdate}
+      />
 
-      {deleteConfirmOrder && (
-        <DeleteConfirmModal
-          order={deleteConfirmOrder}
-          onClose={() => setDeleteConfirmOrder(null)}
-          onConfirm={handleDeleteOrder}
-        />
-      )}
+      <DeleteConfirmModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        order={selectedOrder}
+        onConfirm={handleDeleteOrder}
+      />
     </div>
   );
 };
