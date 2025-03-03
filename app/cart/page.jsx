@@ -110,11 +110,48 @@ const CartItem = ({ item, updateCartQuantity, removeFromCart }) => {
 
 const CartPage = () => {
   const { cart, removeFromCart, updateCartQuantity } = useCart();
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   const totalPrice = cart.reduce((total, item) => {
     const price = item.price || item.productPrice || 0;
     return total + price * item.quantity;
   }, 0);
+
+  const handleCheckout = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cart,
+          total: totalPrice,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Sipariş oluşturulurken bir hata oluştu");
+      }
+
+      // Başarılı sipariş sonrası işlemler
+      alert("Siparişiniz başarıyla oluşturuldu!");
+      // Sepeti temizle
+      cart.forEach(item => removeFromCart(item.sku));
+      
+    } catch (err) {
+      setError(err.message);
+      console.error("Sipariş hatası:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -140,9 +177,20 @@ const CartPage = () => {
               }).format(totalPrice)}
             </h2>
           </div>
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              {error}
+            </div>
+          )}
           <div className="text-right">
-            <button className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors">
-              Siparişi Onayla
+            <button
+              onClick={handleCheckout}
+              disabled={isLoading}
+              className={`bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isLoading ? "İşleniyor..." : "Siparişi Onayla"}
             </button>
           </div>
         </div>
