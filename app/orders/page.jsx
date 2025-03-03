@@ -12,12 +12,26 @@ const OrderStatusBadge = ({ status, onClick, isButton = false }) => {
   const baseClasses = `px-3 py-1 rounded-full text-sm ${statusColors[status]}`;
   const buttonClasses = isButton ? "cursor-pointer hover:opacity-75" : "";
 
+  if (isButton) {
+    return (
+      <button
+        className={`${baseClasses} ${buttonClasses}`}
+        onClick={onClick}
+        onKeyPress={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            onClick();
+          }
+        }}
+        tabIndex={0}
+        aria-label={`Sipariş durumunu güncelle: ${status}`}
+      >
+        {status}
+      </button>
+    );
+  }
+
   return (
-    <span
-      className={`${baseClasses} ${buttonClasses}`}
-      onClick={isButton ? onClick : undefined}
-      role={isButton ? "button" : undefined}
-    >
+    <span className={baseClasses}>
       {status}
     </span>
   );
