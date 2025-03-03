@@ -45,6 +45,17 @@ const StatusUpdateModal = ({ order, onClose, onUpdate }) => {
     "İptal Edildi"
   ];
 
+  // ESC tuşu ile modalı kapatma
+  React.useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
   const handleStatusUpdate = async (newStatus) => {
     try {
       const response = await fetch(`/api/orders/${order._id}`, {
@@ -68,25 +79,42 @@ const StatusUpdateModal = ({ order, onClose, onUpdate }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">Sipariş Durumunu Güncelle</h2>
+    <div
+      role="dialog"
+      aria-labelledby="status-modal-title"
+      aria-modal="true"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose();
+      }}
+      tabIndex={-1}
+    >
+      <div 
+        className="bg-white rounded-lg p-6 max-w-md w-full"
+        role="document"
+      >
+        <h2 id="status-modal-title" className="text-xl font-bold mb-4">Sipariş Durumunu Güncelle</h2>
         <div className="space-y-2">
           {statuses.map((status) => (
-            <div
+            <button
               key={status}
               onClick={() => handleStatusUpdate(status)}
-              className={`p-3 rounded cursor-pointer hover:bg-gray-100 ${
+              className={`w-full p-3 rounded text-left hover:bg-gray-100 ${
                 order.status === status ? "bg-gray-100" : ""
               }`}
+              aria-label={`Durumu ${status} olarak güncelle`}
             >
               <OrderStatusBadge status={status} />
-            </div>
+            </button>
           ))}
         </div>
         <button
           onClick={onClose}
           className="mt-4 w-full bg-gray-200 text-gray-800 py-2 px-4 rounded hover:bg-gray-300"
+          aria-label="Modalı kapat"
         >
           Kapat
         </button>
@@ -96,11 +124,37 @@ const StatusUpdateModal = ({ order, onClose, onUpdate }) => {
 };
 
 const OrderDetailsModal = ({ order, onClose }) => {
+  // ESC tuşu ile modalı kapatma
+  React.useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div
+      role="dialog"
+      aria-labelledby="details-modal-title"
+      aria-modal="true"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose();
+      }}
+      tabIndex={-1}
+    >
+      <div 
+        className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        role="document"
+      >
         <div className="flex justify-between items-start mb-4">
-          <h2 className="text-xl font-bold">Sipariş Detayları</h2>
+          <h2 id="details-modal-title" className="text-xl font-bold">Sipariş Detayları</h2>
           <OrderStatusBadge status={order.status} />
         </div>
 
@@ -168,6 +222,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
         <button
           onClick={onClose}
           className="mt-6 w-full bg-gray-200 text-gray-800 py-2 px-4 rounded hover:bg-gray-300"
+          aria-label="Detayları kapat"
         >
           Kapat
         </button>
@@ -251,21 +306,49 @@ const OrdersPage = () => {
 
   // Silme onay modalı
   const DeleteConfirmModal = ({ order, onClose, onConfirm }) => {
+    // ESC tuşu ile modalı kapatma
+    React.useEffect(() => {
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+      window.addEventListener('keydown', handleEscape);
+      return () => window.removeEventListener('keydown', handleEscape);
+    }, [onClose]);
+
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full">
-          <h2 className="text-xl font-bold mb-4">Siparişi Sil</h2>
+      <div 
+        role="dialog"
+        aria-labelledby="delete-modal-title"
+        aria-modal="true"
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') onClose();
+        }}
+        tabIndex={-1}
+      >
+        <div 
+          className="bg-white rounded-lg p-6 max-w-md w-full"
+          role="document"
+        >
+          <h2 id="delete-modal-title" className="text-xl font-bold mb-4">Siparişi Sil</h2>
           <p className="mb-4">Bu siparişi silmek istediğinizden emin misiniz?</p>
           <div className="flex justify-end space-x-3">
             <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              aria-label="İptal et"
             >
               İptal
             </button>
             <button
               onClick={() => onConfirm(order._id)}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              aria-label="Siparişi sil"
             >
               Sil
             </button>
