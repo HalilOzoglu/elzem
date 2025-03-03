@@ -53,6 +53,10 @@ const productSchema = new mongoose.Schema(
     productImgMini: {
       type: String,
     },
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true, // Oluşturulma ve güncellenme tarihlerini otomatik kaydeder.

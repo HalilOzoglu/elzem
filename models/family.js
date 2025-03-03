@@ -32,6 +32,7 @@ const familySchema = new mongoose.Schema(
     familyBasePrice: { type: Number },
     isVariant: { type: Boolean, default: true },
     variants: [variantSchema],
+    order: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

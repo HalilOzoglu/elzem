@@ -3,6 +3,7 @@ import ProductAdd from "@/components/ui/newtable";
 import ProductFamily from "@/components/ui/family";
 import { Tab, Tabs } from "@heroui/tabs";
 import { Divider } from "@heroui/react";
+import OrderList from "@/components/OrderList";
 export default function CreatePage() {
   return (
     <div className="">
@@ -14,6 +15,9 @@ export default function CreatePage() {
         </Tab>
         <Tab title="Varyantlı">
           <ProductFamily />
+        </Tab>
+        <Tab title="Sıralama">
+          <OrderList />
         </Tab>
       </Tabs>
     </div>

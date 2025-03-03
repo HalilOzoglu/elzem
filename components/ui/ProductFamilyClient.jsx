@@ -34,6 +34,60 @@ const ProductFamilyClient = ({ variants, product }) => {
 
   const filteredOptions = useMemo(() => {
     const options = {};
+    
+    // Özel format için sıralama fonksiyonu
+    const compareValues = (a, b) => {
+      // Özel varyant sıralaması için sıra değerleri
+      const specialOrder = {
+        'düz': 1,
+        'deve': 2,
+        'süper deve': 3
+      };
+
+      // Özel varyant kontrolü
+      const aLower = a.toString().toLowerCase();
+      const bLower = b.toString().toLowerCase();
+      if (specialOrder[aLower] && specialOrder[bLower]) {
+        return specialOrder[aLower] - specialOrder[bLower];
+      }
+
+      // Parantez içindeki bilgileri çıkararak ana değerleri alalım
+      const cleanValue = (str) => str.toString().split('(')[0].trim();
+      const aClean = cleanValue(a);
+      const bClean = cleanValue(b);
+
+      // Ondalıklı sayıları da kapsayan format kontrolü (örn: 3.5x20)
+      const formatRegex = /^(\d*\.?\d+)x(\d*\.?\d+)$/;
+      const matchA = aClean.match(formatRegex);
+      const matchB = bClean.match(formatRegex);
+      
+      // Her iki değer de "3.5x20" formatındaysa
+      if (matchA && matchB) {
+        const [, num1A, num2A] = matchA;
+        const [, num1B, num2B] = matchB;
+        // Önce ilk sayıları karşılaştır
+        const firstNumA = parseFloat(num1A);
+        const firstNumB = parseFloat(num1B);
+        if (firstNumA !== firstNumB) {
+          return firstNumA - firstNumB;
+        }
+        // İlk sayılar eşitse ikinci sayıları karşılaştır
+        const secondNumA = parseFloat(num2A);
+        const secondNumB = parseFloat(num2B);
+        return secondNumA - secondNumB;
+      }
+      
+      // Normal sayısal kontrol
+      const numA = parseFloat(aClean);
+      const numB = parseFloat(bClean);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      
+      // Diğer durumlar için alfabetik sıralama
+      return aClean.localeCompare(bClean, 'tr');
+    };
+
     activeKeys.forEach((key, index) => {
       const prevKeys = activeKeys.slice(0, index);
       const filtered = variants.filter((variant) =>
@@ -41,7 +95,8 @@ const ProductFamilyClient = ({ variants, product }) => {
           (k) => !selectedOptions[k] || variant[k] === selectedOptions[k]
         )
       );
-      options[key] = [...new Set(filtered.map((v) => v[key]))];
+      const uniqueValues = [...new Set(filtered.map((v) => v[key]))];
+      options[key] = uniqueValues.sort(compareValues);
     });
     return options;
   }, [activeKeys, variants, selectedOptions]);

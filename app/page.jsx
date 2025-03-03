@@ -1,51 +1,39 @@
-import Link from "next/link";
 import Product from "@/models/product";
 import Family from "@/models/family";
 import dbConnect from "@/utils/dbConnect";
 import ProductList from "@/components/ui/ProductList";
-import mongoose from "mongoose";
+import ProductCard from "@/components/ui/ProductCard";
+import FamilyCard from "@/components/ui/FamilyCard";
 
 // Dinamik davranışı zorla
 export const dynamic = "force-dynamic"; // Bu satırı ekleyin
 
 async function getCategoriesWithProducts() {
   try {
-    // Bağlantıyı kur, eğer başarısız olursa hata fırlatacaktır.
     await dbConnect();
 
-    // Bağlantı kontrolünü kaldırdık; bağlantı kurulmuşsa sorgular çalışacaktır.
-    let products = await Product.find({})
-      .select(
-        "productCategory productName productPrice productDetail productCount productSku"
-      )
-      .lean();
+    // Tüm ürün ve aileleri al
+    let [products, families] = await Promise.all([
+      Product.find({})
+        .select(
+          "productCategory productName productPrice productDetail productCount productSku order"
+        )
+        .lean(),
+      Family.find({})
+        .select(
+          "familyName familyCategory familyDetail familyCode familyBasePrice order"
+        )
+        .lean(),
+    ]);
 
-    let families = await Family.find({})
-      .select(
-        "familyName familyCategory familyDetail familyCode familyBasePrice"
-      )
-      .lean();
-
-    if (products.length === 0 && families.length === 0) {
-      return {};
-    }
-
-    let categoryMap = {};
-
-    products.forEach((product) => {
-      let category = product.productCategory;
-      categoryMap[category] = categoryMap[category] || [];
-      categoryMap[category].push({
+    // Tüm öğeleri birleştir ve dönüştür
+    const allItems = [
+      ...products.map(product => ({
         ...product,
         _id: product._id.toString(),
-        type: "product",
-      });
-    });
-
-    families.forEach((family) => {
-      let category = family.familyCategory;
-      categoryMap[category] = categoryMap[category] || [];
-      categoryMap[category].push({
+        type: "product"
+      })),
+      ...families.map(family => ({
         ...family,
         _id: family._id.toString(),
         productName: family.familyName,
@@ -53,11 +41,32 @@ async function getCategoriesWithProducts() {
         productDetail: family.familyDetail,
         productPrice: family.familyBasePrice,
         productSku: family.familyCode,
-        type: "family",
-      });
+        type: "family"
+      }))
+    ];
+
+    // Order'a göre sırala
+    const sortedItems = allItems.sort((a, b) => {
+      const orderA = typeof a.order === 'number' ? a.order : Infinity;
+      const orderB = typeof b.order === 'number' ? b.order : Infinity;
+      return orderA - orderB;
     });
 
-    return JSON.parse(JSON.stringify(categoryMap));
+    // İlk 24 favoriler için al
+    const favorites = sortedItems.slice(0, 27);
+
+    // Kategorilere göre grupla
+    const categoryMap = {};
+    sortedItems.forEach((item) => {
+      const category = item.type === "product" ? item.productCategory : item.familyCategory;
+      categoryMap[category] = categoryMap[category] || [];
+      categoryMap[category].push(item);
+    });
+
+    return JSON.parse(JSON.stringify({
+      favorites,
+      categories: categoryMap
+    }));
   } catch (error) {
     console.error("Veritabanı hatası:", error);
     throw error;
@@ -65,18 +74,45 @@ async function getCategoriesWithProducts() {
 }
 
 export default async function Home() {
-  let categoryData;
+  let data;
 
   try {
-    categoryData = await getCategoriesWithProducts();
+    data = await getCategoriesWithProducts();
   } catch (error) {
     console.error("Veri çekme hatası:", error);
-    categoryData = null;
+    data = null;
   }
 
   return (
     <div className="min-h-screen pt-4">
-      <ProductList data={categoryData} />
+      <img src="/banner.webp" alt="banner" className="w-full h-auto mb-5 rounded-sm" />
+      <main className="container px-4 mx-auto">
+        {/* Favoriler Bölümü */}
+        <section className="mb-12">
+          <div className="mb-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">
+                  Favoriler
+                </h1>
+                <div className="h-1 w-20 bg-blue-500 mt-2 rounded-full" />
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 md:grid-cols-9 gap-4">
+            {data?.favorites.map((item) =>
+              item.type === "product" ? (
+                <ProductCard key={item.productSku} product={item} />
+              ) : (
+                <FamilyCard key={item.familyCode} family={item} />
+              )
+            )}
+          </div>
+        </section>
+        
+        {/* Kategoriler Bölümü */}
+        <ProductList data={data?.categories} />
+      </main>
     </div>
   );
 }

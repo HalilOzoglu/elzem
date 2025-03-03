@@ -98,18 +98,22 @@ export const Navbar = () => {
   );
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar 
+      maxWidth="2xl" 
+      className="bg-background/70 backdrop-blur-sm" 
+      position="sticky"
+    >
       {/* Mobil Görünüm */}
       <div className="lg:hidden w-full flex flex-col items-center">
         <div className="w-full flex justify-center py-1">
           <NextLink href="/">
-            <img src="/elzemlogo.svg" alt="Elzem Logo" className=" pt-8 w-40" />
+            <img src="/elzemlogo.svg" alt="Elzem Logo" className="pt-10 w-40" />
           </NextLink>
         </div>
-        <div className="w-full flex gap-4 items-center">
+        <div className=" w-full flex gap-4 items-center px-4 mb-1 mt-2">
           <div className="flex-1">{searchInput}</div>
           <NextLink href="/cart" className="relative justify-end">
-            <CartIcon className="w-6 h-6 text-gray-800" />
+            <CartIcon className="w-8 h-8 text-gray-800" />
             {cartItemsCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1">
                 {cartItemsCount}
@@ -120,16 +124,16 @@ export const Navbar = () => {
       </div>
 
       {/* Web Görünüm */}
-      <div className="hidden lg:flex items-center justify-between w-full py-2">
+      <div className="hidden lg:flex items-center justify-between w-full min-h-10 py-2">
         <div className="flex-1 flex justify-start">
           <NextLink href="/">
-            <img src="/elzemlogo.svg" alt="Elzem Logo" className="w-40 h-28" />
+            <img src="/elzemlogo.svg" alt="Elzem Logo" className="w-40 h-32" />
           </NextLink>
         </div>
         <div className="flex-1 flex justify-center">{searchInput}</div>
         <div className="flex-1 flex justify-end">
           <NextLink href="/cart" className="relative mr-4">
-            <CartIcon className="w-6 h-6 text-gray-800" />
+            <CartIcon className="w-8 h-8 antialiased text-gray-800" />
             {cartItemsCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1">
                 {cartItemsCount}

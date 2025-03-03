@@ -4,15 +4,20 @@ import dbConnect from "@/utils/dbConnect";
 import { NextResponse } from "next/server";
 
 // Tüm ürünleri getir
-export async function GET() {
+export async function GET(req) {
   try {
     await dbConnect();
-    const products = await Product.find({}).sort({ createdAt: -1 }); // En son eklenenler başta
+
+    // Varyant olmayan ürünleri getir ve sıralamaya göre sırala
+    const products = await Product.find({ isVariant: false })
+      .sort('order')
+      .select('productName productBrand productCategory productSku order');
 
     return NextResponse.json(products);
   } catch (error) {
+    console.error('Ürünler getirilirken hata:', error);
     return NextResponse.json(
-      { success: false, message: error.message },
+      { message: 'Sunucu hatası' },
       { status: 500 }
     );
   }
