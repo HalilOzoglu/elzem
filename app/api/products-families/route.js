@@ -18,6 +18,7 @@ export async function GET() {
         category: product.productCategory,
         sku: product.productSku,
         name: product.productName,
+        price: product.productPrice,
       });
     });
 
@@ -27,6 +28,7 @@ export async function GET() {
         category: family.familyCategory,
         sku: family.familyCode,
         name: family.familyName,
+        price: family.familyBasePrice,
       });
 
       family.variants.forEach((variant) => {
@@ -34,6 +36,7 @@ export async function GET() {
           category: family.familyCategory,
           sku: variant.sku,
           name: `${family.familyName} - ${variant.v1 || ""} ${variant.v2 || ""} ${variant.v3 || ""}`.trim(),
+          price: variant.price,
         });
       });
     });
