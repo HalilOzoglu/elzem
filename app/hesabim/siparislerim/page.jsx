@@ -57,7 +57,33 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
   if (!order) return null;
 
   return (
-    <Modal scrollBehavior="inside" isOpen={isOpen} onClose={onClose} size="2xl">
+    <Modal 
+      scrollBehavior="inside" 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      size="2xl"
+      className="sm:mx-0 mx-4"
+      motionProps={{
+        variants: {
+          enter: {
+            y: 0,
+            opacity: 1,
+            transition: {
+              duration: 0.3,
+              ease: "easeOut"
+            }
+          },
+          exit: {
+            y: 20,
+            opacity: 0,
+            transition: {
+              duration: 0.2,
+              ease: "easeIn"
+            }
+          }
+        }
+      }}
+    >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           Sipariş Detayları
@@ -265,7 +291,7 @@ const UserOrdersPage = () => {
                     isIconOnly
                     size="sm"
                     variant="light"
-                    onClick={() => handleOrderSelect(order)}
+                    onPress={() => handleOrderSelect(order)}
                   >
                     <EyeIcon className="h-5 w-5" />
                   </Button>

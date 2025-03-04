@@ -92,7 +92,7 @@ const StatusUpdateModal = ({ isOpen, onClose, order, onUpdate }) => {
                 color={status === order?.status ? "primary" : "default"}
                 variant={status === order?.status ? "flat" : "light"}
                 className="w-full justify-start"
-                onClick={() => handleStatusUpdate(status)}
+                onPress={() => handleStatusUpdate(status)}
               >
                 <OrderStatusBadge status={status} />
               </Button>
@@ -380,7 +380,7 @@ const OrdersPage = () => {
                         isIconOnly
                         size="sm"
                         variant="light"
-                        onClick={() => handleOrderSelect(order, 'details')}
+                        onPress={() => handleOrderSelect(order, 'details')}
                       >
                         <EyeIcon className="h-5 w-5" />
                       </Button>
@@ -389,7 +389,7 @@ const OrdersPage = () => {
                       size="sm"
                       color="primary"
                       variant="flat"
-                      onClick={() => handleOrderSelect(order, 'status')}
+                      onPress={() => handleOrderSelect(order, 'status')}
                     >
                       Durum Güncelle
                     </Button>
@@ -399,7 +399,7 @@ const OrdersPage = () => {
                         size="sm"
                         color="danger"
                         variant="light"
-                        onClick={() => handleOrderSelect(order, 'delete')}
+                        onPress={() => handleOrderSelect(order, 'delete')}
                       >
                         <TrashIcon className="h-5 w-5" />
                       </Button>
