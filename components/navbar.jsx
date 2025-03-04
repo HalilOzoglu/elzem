@@ -8,7 +8,7 @@ import { UserIcon, ShoppingCartIcon, MagnifyingGlassIcon } from '@heroicons/reac
 import { useState, useEffect, useRef } from 'react';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 
-export const Navbar = () => {
+const Navbar = () => {
   const { cartItemsCount } = useCart();
   const { data: session } = useSession();
   const router = useRouter();
