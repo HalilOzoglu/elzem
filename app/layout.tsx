@@ -8,7 +8,7 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { CartProvider } from "@/context/CartContext";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/Navbar";
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
