@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { UserIcon, ShoppingCartIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect, useRef } from 'react';
@@ -17,11 +17,30 @@ const Navbar = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const searchContainerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchContainerRef.current && 
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const searchProducts = async () => {
       if (searchQuery.length < 2) {
         setSearchResults([]);
+        setShowDropdown(false);
         return;
       }
 
@@ -49,7 +68,11 @@ const Navbar = () => {
   };
 
   const handleProfileAction = (key) => {
-    router.push(key);
+    if (key === 'logout') {
+      signOut();
+    } else {
+      router.push(key);
+    }
   };
 
   return (
@@ -87,6 +110,12 @@ const Navbar = () => {
                       <DropdownItem key="/admin/orders">Sipariş Paneli</DropdownItem>
                     </>
                   )}
+                  <DropdownItem 
+                    key="logout" 
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    Çıkış Yap
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             ) : (
@@ -97,7 +126,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="mt-4 md:mt-0 w-full md:w-1/2 relative" ref={dropdownRef}>
+        <div className="mt-4 md:mt-0 w-full md:w-1/2 relative" ref={searchContainerRef}>
           <div className="relative">
             <input
               type="text"
@@ -110,32 +139,30 @@ const Navbar = () => {
           </div>
 
           {showDropdown && searchResults.length > 0 && (
-            <Dropdown isOpen={showDropdown}>
-              <DropdownMenu 
-                aria-label="Arama sonuçları"
-                items={searchResults}
-                onAction={(key) => {
-                  const result = searchResults.find(r => r._id === key);
-                  if (result) handleResultClick(result);
-                }}
-              >
-                {(result) => (
-                  <DropdownItem key={result._id}>
-                    <div className="flex justify-between items-center">
-                      <div>
+            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+              <div className="max-h-96 overflow-y-auto">
+                {searchResults.map((result) => (
+                  // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+                  <div
+                    key={result._id}
+                    onClick={() => handleResultClick(result)}
+                    className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="flex justify-between items-center w-full">
+                      <div className="flex-1 min-w-36">
                         <div className="font-medium">{result.name}</div>
                         <div className="text-sm text-gray-600">
                           {result.brand} - {result.category}
                         </div>
                       </div>
-                      <div className="text-sm font-bold text-indigo-600">
+                      <div className="text-sm font-bold text-indigo-600 ml-4">
                         {result.price} ₺
                       </div>
                     </div>
-                  </DropdownItem>
-                )}
-              </DropdownMenu>
-            </Dropdown>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
@@ -167,6 +194,12 @@ const Navbar = () => {
                     <DropdownItem key="/admin/orders">Sipariş Paneli</DropdownItem>
                   </>
                 )}
+                <DropdownItem 
+                  key="logout" 
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  Çıkış Yap
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           ) : (
