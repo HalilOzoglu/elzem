@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import dbConnect from "@/utils/dbConnect";
 import Order from "@/models/order";
+import User from "@/models/user";
+import mongoose from "mongoose";
 
 export async function GET() {
   try {
@@ -18,10 +22,35 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Sipariş vermek için giriş yapmanız gerekiyor" },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
     
     const data = await request.json();
     const { cart, total } = data;
+
+    // Session'dan gelen ID'yi ObjectId'ye çevir
+    const userId = new mongoose.Types.ObjectId(session.user.id);
+
+    // Kullanıcı bilgilerini getir
+    const user = await User.findById(userId);
+    
+    console.log("Aranan kullanıcı ID:", userId);
+    console.log("Bulunan kullanıcı:", user);
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Kullanıcı bulunamadı" },
+        { status: 404 }
+      );
+    }
 
     // Sepetteki ürünleri sipariş formatına dönüştür
     const orderProducts = cart.map(item => {
@@ -48,6 +77,14 @@ export async function POST(request) {
 
     // Yeni sipariş oluştur
     const order = await Order.create({
+      userId: userId,
+      userInfo: {
+        ad: user.ad,
+        soyad: user.soyad,
+        telefon: user.telefon,
+        adres: user.adres,
+        tabela: user.tabela
+      },
       products: orderProducts,
       total: total
     });
@@ -56,7 +93,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("Sipariş oluşturma hatası:", error);
     return NextResponse.json(
-      { success: false, error: "Sipariş oluşturulamadı" },
+      { success: false, error: "Sipariş oluşturulamadı: " + error.message },
       { status: 500 }
     );
   }

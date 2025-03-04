@@ -1,23 +1,25 @@
 "use client";
 import React from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  useDisclosure,
   Table,
   TableHeader,
   TableBody,
   TableColumn,
   TableRow,
   TableCell,
-  Chip,
-  Tooltip
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Chip
 } from "@heroui/react";
-import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { EyeIcon } from "@heroicons/react/24/outline";
+
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
     "Hazırlanıyor": {
@@ -51,69 +53,11 @@ const OrderStatusBadge = ({ status }) => {
   );
 };
 
-const StatusUpdateModal = ({ isOpen, onClose, order, onUpdate }) => {
-  const statuses = [
-    "Hazırlanıyor",
-    "Teslim edilecek",
-    "Teslim Edildi",
-    "İptal Edildi"
-  ];
-
-  const handleStatusUpdate = async (newStatus) => {
-    try {
-      const response = await fetch(`/api/orders/${order._id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Durum güncellenemedi");
-      }
-
-      onUpdate(order._id, newStatus);
-      onClose();
-    } catch (error) {
-      console.error("Durum güncellenirken bir hata oluştu", error);
-    }
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
-      <ModalContent>
-        <ModalHeader className="flex flex-col gap-1">Sipariş Durumunu Güncelle</ModalHeader>
-        <ModalBody>
-          <div className="grid gap-2">
-            {statuses.map((status) => (
-              <Button
-                key={status}
-                color={status === order?.status ? "primary" : "default"}
-                variant={status === order?.status ? "flat" : "light"}
-                className="w-full justify-start"
-                onClick={() => handleStatusUpdate(status)}
-              >
-                <OrderStatusBadge status={status} />
-              </Button>
-            ))}
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="danger" variant="light" onPress={onClose}>
-            Kapat
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
-
 const OrderDetailsModal = ({ isOpen, onClose, order }) => {
   if (!order) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+    <Modal scrollBehavior="inside" isOpen={isOpen} onClose={onClose} size="2xl" className="z-[1000]">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           Sipariş Detayları
@@ -125,11 +69,38 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-sm text-gray-500">Sipariş No</p>
-              <p className="font-medium">{order._id}</p>
+              <p className="font-medium truncate">{order._id}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Sipariş Tarihi</p>
               <p className="font-medium">{order.date}</p>
+            </div>
+          </div>
+
+          <div className="border p-4 rounded-lg mb-6 bg-gray-50">
+            <h3 className="text-lg font-semibold mb-3">Teslimat Bilgileri</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-500">Ad Soyad</p>
+                <p className="font-medium">{`${order.userInfo.ad} ${order.userInfo.soyad}`}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Telefon</p>
+                <p className="font-medium">{order.userInfo.telefon}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-sm text-gray-500">Tabela</p>
+                <p className="font-medium">{order.userInfo.tabela}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-sm text-gray-500">Adres</p>
+                <p className="font-medium">
+                  {order.userInfo.adres ? 
+                    `${order.userInfo.adres.mahalle || ''} ${order.userInfo.adres.sokak || ''} ${order.userInfo.adres.detay || ''} - ${order.userInfo.adres.ilce || ''} / ${order.userInfo.adres.il || ''}`.trim() 
+                    : 'Belirtilmemiş'
+                  }
+                </p>
+              </div>
             </div>
           </div>
 
@@ -190,31 +161,13 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
   );
 };
 
-const DeleteConfirmModal = ({ isOpen, onClose, order, onConfirm }) => {
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="sm">
-      <ModalContent>
-        <ModalHeader className="flex flex-col gap-1">Siparişi Sil</ModalHeader>
-        <ModalBody>
-          <p>Bu siparişi silmek istediğinizden emin misiniz?</p>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="default" variant="light" onPress={onClose}>
-            İptal
-          </Button>
-          <Button color="danger" onPress={() => onConfirm(order._id)}>
-            Sil
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
-
-const OrdersPage = () => {
+const UserOrdersPage = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [orders, setOrders] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  const [selectedOrder, setSelectedOrder] = React.useState(null);
   
   const {
     isOpen: isDetailsOpen,
@@ -222,80 +175,43 @@ const OrdersPage = () => {
     onClose: onDetailsClose
   } = useDisclosure();
 
-  const {
-    isOpen: isStatusOpen,
-    onOpen: onStatusOpen,
-    onClose: onStatusClose
-  } = useDisclosure();
-
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose
-  } = useDisclosure();
-
-  const [selectedOrder, setSelectedOrder] = React.useState(null);
-
   React.useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (status === "unauthenticated") {
+      router.push("/giris");
+    } else if (status === "authenticated") {
+      fetchUserOrders();
+    }
+  }, [status, router]);
 
-  const fetchOrders = async () => {
+  const fetchUserOrders = async () => {
     try {
-      const response = await fetch("/api/orders");
+      const response = await fetch("/api/user/orders");
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || "Siparişler getirilemedi");
       }
 
+      if (!data.orders) {
+        throw new Error("Sipariş verisi bulunamadı");
+      }
+
+      console.log("Gelen siparişler:", data.orders);
       setOrders(data.orders);
     } catch (err) {
+      console.error("Sipariş getirme hatası:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusUpdate = (orderId, newStatus) => {
-    setOrders(orders.map(order => 
-      order._id === orderId ? { ...order, status: newStatus } : order
-    ));
-  };
-
-  const handleDeleteOrder = async (orderId) => {
-    try {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Sipariş silinemedi");
-      }
-
-      setOrders(orders.filter(order => order._id !== orderId));
-      onDeleteClose();
-    } catch (error) {
-      console.error("Sipariş silinirken bir hata oluştu", error);
-    }
-  };
-
-  const handleOrderSelect = (order, action) => {
+  const handleOrderSelect = (order) => {
     setSelectedOrder(order);
-    switch (action) {
-      case 'details':
-        onDetailsOpen();
-        break;
-      case 'status':
-        onStatusOpen();
-        break;
-      case 'delete':
-        onDeleteOpen();
-        break;
-    }
+    onDetailsOpen();
   };
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="container mx-auto p-4">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -317,16 +233,15 @@ const OrdersPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Siparişler</h1>
+      <h1 className="text-3xl font-bold mb-6">Siparişlerim</h1>
 
       {orders.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          Henüz sipariş bulunmamaktadır.
+          Henüz siparişiniz bulunmamaktadır.
         </div>
       ) : (
-        <Table aria-label="Siparişler listesi">
+        <Table aria-label="Siparişlerim listesi">
           <TableHeader>
-            <TableColumn>SİPARİŞ NO</TableColumn>
             <TableColumn>TARİH</TableColumn>
             <TableColumn>DURUM</TableColumn>
             <TableColumn>TOPLAM</TableColumn>
@@ -335,7 +250,6 @@ const OrdersPage = () => {
           <TableBody>
             {orders.map((order) => (
               <TableRow key={order._id}>
-                <TableCell>{order._id}</TableCell>
                 <TableCell>{order.date}</TableCell>
                 <TableCell>
                   <OrderStatusBadge status={order.status} />
@@ -347,37 +261,14 @@ const OrdersPage = () => {
                   }).format(order.total)}
                 </TableCell>
                 <TableCell>
-                  <div className="flex gap-2">
-                    <Tooltip content="Detaylar">
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="light"
-                        onClick={() => handleOrderSelect(order, 'details')}
-                      >
-                        <EyeIcon className="h-5 w-5" />
-                      </Button>
-                    </Tooltip>
-                    <Button
-                      size="sm"
-                      color="primary"
-                      variant="flat"
-                      onClick={() => handleOrderSelect(order, 'status')}
-                    >
-                      Durum Güncelle
-                    </Button>
-                    <Tooltip content="Sil" color="danger">
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        color="danger"
-                        variant="light"
-                        onClick={() => handleOrderSelect(order, 'delete')}
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </Button>
-                    </Tooltip>
-                  </div>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    onClick={() => handleOrderSelect(order)}
+                  >
+                    <EyeIcon className="h-5 w-5" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -390,22 +281,8 @@ const OrdersPage = () => {
         onClose={onDetailsClose}
         order={selectedOrder}
       />
-
-      <StatusUpdateModal
-        isOpen={isStatusOpen}
-        onClose={onStatusClose}
-        order={selectedOrder}
-        onUpdate={handleStatusUpdate}
-      />
-
-      <DeleteConfirmModal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        order={selectedOrder}
-        onConfirm={handleDeleteOrder}
-      />
     </div>
   );
 };
 
-export default OrdersPage; 
+export default UserOrdersPage; 

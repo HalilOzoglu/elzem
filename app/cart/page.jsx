@@ -2,6 +2,9 @@
 import React from "react";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Button } from "@heroui/react";
 
 const CartItem = ({ item, updateCartQuantity, removeFromCart }) => {
   const [inputValue, setInputValue] = React.useState(item.quantity.toString());
@@ -112,6 +115,8 @@ const CartPage = () => {
   const { cart, removeFromCart, updateCartQuantity } = useCart();
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
+  const { data: session } = useSession();
+  const router = useRouter();
 
   const totalPrice = cart.reduce((total, item) => {
     const price = item.price || item.productPrice || 0;
@@ -119,6 +124,11 @@ const CartPage = () => {
   }, 0);
 
   const handleCheckout = async () => {
+    if (!session) {
+      router.push("/giris");
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
@@ -144,6 +154,8 @@ const CartPage = () => {
       alert("Siparişiniz başarıyla oluşturuldu!");
       // Sepeti temizle
       cart.forEach(item => removeFromCart(item.sku));
+      // Siparişlerim sayfasına yönlendir
+      router.push("/hesabim/siparislerim");
       
     } catch (err) {
       setError(err.message);
@@ -183,15 +195,20 @@ const CartPage = () => {
             </div>
           )}
           <div className="text-right">
-            <button
+            {!session && (
+              <p className="text-danger mb-2">
+                Sipariş vermek için lütfen giriş yapın.
+              </p>
+            )}
+            <Button
               onClick={handleCheckout}
-              disabled={isLoading}
+              disabled={isLoading || !session}
               className={`bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors ${
-                isLoading ? "opacity-50 cursor-not-allowed" : ""
+                (isLoading || !session) ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {isLoading ? "İşleniyor..." : "Siparişi Onayla"}
-            </button>
+              {isLoading ? "İşleniyor..." : session ? "Siparişi Onayla" : "Giriş Yap"}
+            </Button>
           </div>
         </div>
       )}

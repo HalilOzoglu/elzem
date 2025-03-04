@@ -20,6 +20,33 @@ const orderProductSchema = new mongoose.Schema({
   }
 });
 
+// Kullanıcı bilgileri alt şeması
+const userInfoSchema = new mongoose.Schema({
+  ad: {
+    type: String,
+    required: true,
+  },
+  soyad: {
+    type: String,
+    required: true,
+  },
+  telefon: {
+    type: String,
+    required: true,
+  },
+  adres: {
+    il: String,
+    ilce: String,
+    mahalle: String,
+    sokak: String,
+    detay: String
+  },
+  tabela: {
+    type: String,
+    required: true,
+  }
+});
+
 // Sipariş durumu için enum
 const OrderStatus = {
   PREPARING: "Hazırlanıyor",
@@ -32,10 +59,11 @@ const OrderStatus = {
 const orderSchema = new mongoose.Schema(
   {
     userId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
-      default: "anonim"
     },
+    userInfo: userInfoSchema,
     date: {
       type: Date,
       required: true,

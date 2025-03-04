@@ -25,7 +25,7 @@ export async function GET(request) {
         { productDetail: { $regex: query, $options: "i" } },
       ],
     })
-      .select("productName productSku productBrand productCategory")
+      .select("productName productSku productBrand productCategory productPrice")
       .limit(10);
 
     // Aileleri arama
@@ -37,7 +37,7 @@ export async function GET(request) {
         { familyDetail: { $regex: query, $options: "i" } },
       ],
     })
-      .select("familyName familyCode familyBrand familyCategory")
+      .select("familyName familyCode familyBrand familyCategory familyBasePrice")
       .limit(10);
 
     // Sonuçları birleştir ve sırala
@@ -51,6 +51,7 @@ export async function GET(request) {
         type: "product",
         productSku: product.productSku,
         productName: product.productName,
+        price: product.productPrice,
       })),
       ...families.map((family) => ({
         _id: family._id.toString(),
@@ -61,6 +62,7 @@ export async function GET(request) {
         type: "family",
         productSku: family.familyCode,
         productName: family.familyName,
+        price: family.familyBasePrice,
       })),
     ].slice(0, 10); // Toplam sonuç sayısını 10 ile sınırla
 
