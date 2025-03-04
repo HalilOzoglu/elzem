@@ -68,8 +68,7 @@ const orderSchema = new mongoose.Schema(
   {
     orderNumber: {
       type: Number,
-      unique: true,
-      required: true
+      unique: true
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -109,19 +108,19 @@ const orderSchema = new mongoose.Schema(
 
 // Yeni sipariş oluşturulduğunda otomatik olarak sipariş numarası atama
 orderSchema.pre('save', async function(next) {
-  if (this.isNew) {
-    try {
+  try {
+    if (!this.orderNumber) {
       const counter = await Counter.findByIdAndUpdate(
         { _id: 'orderNumber' },
         { $inc: { seq: 1 } },
         { new: true, upsert: true }
       );
       this.orderNumber = counter.seq;
-    } catch (error) {
-      return next(error);
     }
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 });
 
 export default mongoose.models.Order || mongoose.model("Order", orderSchema); 
