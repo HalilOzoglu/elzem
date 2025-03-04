@@ -4,6 +4,7 @@ import dbConnect from "@/utils/dbConnect";
 import ProductList from "@/components/ui/ProductList";
 import ProductCard from "@/components/ui/ProductCard";
 import FamilyCard from "@/components/ui/FamilyCard";
+import FloatingButtons from "@/components/FloatingButtons";
 
 // Dinamik davranışı zorla
 export const dynamic = "force-dynamic"; // Bu satırı ekleyin
@@ -113,6 +114,7 @@ export default async function Home() {
         {/* Kategoriler Bölümü */}
         <ProductList data={data?.categories} />
       </main>
+      <FloatingButtons />
     </div>
   );
 }

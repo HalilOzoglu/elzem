@@ -55,9 +55,9 @@ export default function RootLayout({
           }}
         >
           <CartProvider>
-            <div className="relative w-full flex flex-col h-screen">
+            <div className="relative w-full flex flex-col min-h-screen">
               <Navbar />
-              <main className="container mx-auto pt-8 flex-grow">
+              <main className="container mx-auto px-4 pt-28 flex-grow">
                 {children}
               </main>
             </div>

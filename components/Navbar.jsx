@@ -75,8 +75,17 @@ const Navbar = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim().length >= 2) {
+      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+      setShowDropdown(false);
+      setSearchQuery('');
+    }
+  };
+
   return (
-    <nav className="bg-white shadow-md py-4 px-6">
+    <nav className="bg-white shadow-md py-4 px-6 fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
         <div className="flex items-center justify-between w-full md:w-auto">
           <Link href="/">
@@ -132,7 +141,7 @@ const Navbar = () => {
         </div>
 
         <div className="mt-4 md:mt-0 w-full md:w-1/2 relative" ref={searchContainerRef}>
-          <div className="relative">
+          <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
               value={searchQuery}
@@ -140,8 +149,14 @@ const Navbar = () => {
               placeholder="Ürün ara..."
               className="w-full border border-gray-300 rounded-md py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
-          </div>
+            <button
+              type="submit"
+              className="absolute left-3 top-2.5"
+              aria-label="Ara"
+            >
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </button>
+          </form>
 
           {showDropdown && searchResults.length > 0 && (
             <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
@@ -201,6 +216,7 @@ const Navbar = () => {
                 {session?.user?.isAdmin && (
                   <>
                     <DropdownItem key="/admin/create">Ürün Paneli</DropdownItem>
+                    <DropdownItem key="/admin/all">Fiyat Paneli</DropdownItem>
                     <DropdownItem key="/admin/orders">Sipariş Paneli</DropdownItem>
                   </>
                 )}
