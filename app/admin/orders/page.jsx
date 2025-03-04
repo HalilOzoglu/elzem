@@ -362,7 +362,7 @@ const OrdersPage = () => {
           <TableBody>
             {orders.map((order) => (
               <TableRow key={order._id}>
-                <TableCell>{order._id}</TableCell>
+                <TableCell>#{order.orderNumber}</TableCell>
                 <TableCell>{order.date}</TableCell>
                 <TableCell>
                   <OrderStatusBadge status={order.status} />

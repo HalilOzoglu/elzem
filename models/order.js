@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+// Sayaç şeması
+const counterSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
+  seq: { type: Number, default: 0 }
+});
+
+const Counter = mongoose.models.Counter || mongoose.model('Counter', counterSchema);
+
 // Ürün alt şeması
 const orderProductSchema = new mongoose.Schema({
   sku: {
@@ -58,6 +66,11 @@ const OrderStatus = {
 // Ana sipariş şeması
 const orderSchema = new mongoose.Schema(
   {
+    orderNumber: {
+      type: Number,
+      unique: true,
+      required: true
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -93,5 +106,22 @@ const orderSchema = new mongoose.Schema(
     toJSON: { getters: true }
   }
 );
+
+// Yeni sipariş oluşturulduğunda otomatik olarak sipariş numarası atama
+orderSchema.pre('save', async function(next) {
+  if (this.isNew) {
+    try {
+      const counter = await Counter.findByIdAndUpdate(
+        { _id: 'orderNumber' },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+      );
+      this.orderNumber = counter.seq;
+    } catch (error) {
+      return next(error);
+    }
+  }
+  next();
+});
 
 export default mongoose.models.Order || mongoose.model("Order", orderSchema); 

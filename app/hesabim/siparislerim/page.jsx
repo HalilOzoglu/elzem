@@ -95,7 +95,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-sm text-gray-500">Sipariş No</p>
-              <p className="font-medium truncate">{order._id}</p>
+              <p className="font-medium">#{order.orderNumber}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Sipariş Tarihi</p>
