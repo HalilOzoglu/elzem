@@ -195,20 +195,24 @@ const CartPage = () => {
             </div>
           )}
           <div className="text-right">
-            {!session && (
-              <p className="text-danger mb-2">
-                Sipariş vermek için lütfen giriş yapın.
-              </p>
+            {!session ? (
+              <Button
+                onClick={() => router.push("/giris")}
+                className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors"
+              >
+                Giriş Yap
+              </Button>
+            ) : (
+              <Button
+                onClick={handleCheckout}
+                disabled={isLoading}
+                className={`bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {isLoading ? "İşleniyor..." : "Siparişi Onayla"}
+              </Button>
             )}
-            <Button
-              onClick={handleCheckout}
-              disabled={isLoading || !session}
-              className={`bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors ${
-                (isLoading || !session) ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              {isLoading ? "İşleniyor..." : session ? "Siparişi Onayla" : "Giriş Yap"}
-            </Button>
           </div>
         </div>
       )}
