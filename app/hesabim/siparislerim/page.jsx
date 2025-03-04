@@ -57,7 +57,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
   if (!order) return null;
 
   return (
-    <Modal scrollBehavior="inside" isOpen={isOpen} onClose={onClose} size="2xl" className="z-[1000]">
+    <Modal scrollBehavior="inside" isOpen={isOpen} onClose={onClose} size="2xl">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           Sipariş Detayları
