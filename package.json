@@ -44,7 +44,8 @@
   "react": "18.3.1",
   "react-beautiful-dnd": "^13.1.1",
   "react-dom": "18.3.1",
-  "swr": "^2.3.1"
+  "swr": "^2.3.1",
+  "twilio": "^5.4.5"
  },
  "devDependencies": {
   "@next/eslint-plugin-next": "15.0.4",

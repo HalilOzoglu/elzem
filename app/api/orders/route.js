@@ -5,6 +5,12 @@ import dbConnect from "@/utils/dbConnect";
 import Order from "@/models/order";
 import User from "@/models/user";
 import mongoose from "mongoose";
+import twilio from 'twilio';
+
+// Twilio istemcisini oluştur
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(accountSid, authToken);
 
 export async function GET() {
   try {
@@ -87,6 +93,23 @@ export async function POST(request) {
       },
       products: orderProducts,
       total: total
+    });
+
+    // WhatsApp mesajı için sipariş özetini oluştur
+    const orderSummary = `🛍️ Yeni Sipariş Bildirimi!\n\n` +
+      `📦 Sipariş No: ${order._id}\n` +
+      `👤 Müşteri: ${user.ad} ${user.soyad}\n` +
+      `📞 Telefon: ${user.telefon}\n` +
+      `🏪 Tabela: ${user.tabela}\n\n` +
+      `📝 Ürünler:\n${orderProducts.map(p => `- ${p.name} (${p.count} adet)\n`).join('')}\n` +
+      `💰 Toplam Tutar: ${total.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}\n\n` +
+      `📍 Teslimat Adresi:\n${user.adres.il}, ${user.adres.ilce}\n${user.adres.mahalle} ${user.adres.sokak}\n${user.adres.detay}`;
+
+    // WhatsApp mesajını gönder
+    await client.messages.create({
+      from: `whatsapp:${process.env.TWILIO_WHATSAPP_FROM}`,
+      to: `whatsapp:${process.env.ADMIN_WHATSAPP_NUMBER}`,
+      body: orderSummary
     });
 
     return NextResponse.json({ success: true, order }, { status: 201 });
