@@ -31,7 +31,7 @@
     "components/ui/singleproduct.jsx",
     "components/ui/productadd.jsx",
     "app/page.jsx",
-    "components/navbar.jsx"
+    "components/Navbar.jsx"
 , "app/profil/page.jsx"  ],
   "exclude": ["node_modules"]
 }
