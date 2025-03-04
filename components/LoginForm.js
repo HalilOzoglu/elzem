@@ -29,7 +29,7 @@ export default function LoginForm() {
       if (result.error) {
         setError(result.error);
       } else {
-        router.push("/profil");
+        router.push("/");
         router.refresh();
       }
     } catch (error) {
@@ -61,7 +61,7 @@ export default function LoginForm() {
           name="password"
           type="password"
           required
-          placeholder="********"
+          placeholder="Şifrenizi giriniz"
         />
       </div>
 

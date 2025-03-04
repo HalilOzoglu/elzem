@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Button } from "@heroui/react";
+import { signIn } from "next-auth/react";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -45,8 +46,20 @@ export default function RegisterForm() {
         throw new Error(data.message || "Bir hata oluştu");
       }
 
-      // Kayıt başarılı, giriş sayfasına yönlendir
-      router.push("/giris");
+      // Kayıt başarılı, otomatik giriş yap
+      const signInResult = await signIn("credentials", {
+        telefon: userData.telefon,
+        password: userData.password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        throw new Error(signInResult.error);
+      }
+
+      // Ana sayfaya yönlendir
+      router.push("/");
+      router.refresh();
     } catch (error) {
       setError(error.message);
     } finally {

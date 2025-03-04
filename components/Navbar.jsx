@@ -94,8 +94,13 @@ const Navbar = () => {
             {session ? (
               <Dropdown>
                 <DropdownTrigger>
-                  <button className="flex items-center">
+                  <button className="flex items-center gap-2">
                     <UserIcon className="h-6 w-6" />
+                    {session?.user?.name && (
+                      <span className="text-sm font-medium">
+                        {session.user.name.split(' ')[0]} {session.user.name.split(' ')[1]?.[0]}.
+                      </span>
+                    )}
                   </button>
                 </DropdownTrigger>
                 <DropdownMenu 
@@ -178,8 +183,13 @@ const Navbar = () => {
           {session ? (
             <Dropdown>
               <DropdownTrigger>
-                <button className="flex items-center">
+                <button className="flex items-center gap-2">
                   <UserIcon className="h-6 w-6" />
+                  {session?.user?.name && (
+                    <span className="text-sm font-medium">
+                      {session.user.name.split(' ')[0]} {session.user.name.split(' ')[1]?.[0]}.
+                    </span>
+                  )}
                 </button>
               </DropdownTrigger>
               <DropdownMenu 
