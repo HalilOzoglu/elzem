@@ -121,6 +121,7 @@ const Navbar = () => {
                   {session?.user?.isAdmin && (
                     <>
                       <DropdownItem key="/admin/create">Ürün Paneli</DropdownItem>
+                      <DropdownItem key="/admin/all">Fiyat Paneli</DropdownItem>
                       <DropdownItem key="/admin/orders">Sipariş Paneli</DropdownItem>
                     </>
                   )}
@@ -133,8 +134,9 @@ const Navbar = () => {
                 </DropdownMenu>
               </Dropdown>
             ) : (
-              <button onClick={() => router.push('/giris')}>
+              <button onClick={() => router.push('/giris')} className="flex items-center gap-2">
                 <UserIcon className="h-6 w-6" />
+                <span className="text-sm font-medium">Giriş Yap</span>
               </button>
             )}
           </div>
@@ -229,8 +231,9 @@ const Navbar = () => {
               </DropdownMenu>
             </Dropdown>
           ) : (
-            <button onClick={() => router.push('/giris')}>
+            <button onClick={() => router.push('/')} className="flex items-center gap-2">
               <UserIcon className="h-6 w-6" />
+              <span className="text-sm font-medium">Giriş Yap</span>
             </button>
           )}
         </div>

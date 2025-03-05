@@ -12,24 +12,27 @@ export const ProductCard = ({ product }) => {
   return (
     <Link
       href={`/products/${product.productSku}`}
-      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 flex flex-col justify-between"
+      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 w-28 h-52 m-1 flex flex-col"
     >
-      <div className="aspect-square relative">
+      <div className="min-h-28 bg-gray-200 flex items-center justify-center relative">
         <Image
           src={`/${product.productSku}.webp`}
           alt={product.productName}
           fill
-          className="object-cover rounded-t-lg"
+          className="object-cover"
         />
       </div>
       <Divider />
-      <div className="p-4 text-center">
-        <h2 className="text-sm font-semibold text-gray-800 mb-2">
+      <div className="p-2 flex flex-col h-[88px] text-center">
+        <h2 className="text-xs font-semibold text-gray-800 max-h-[40px] overflow-hidden px-1">
           {product.productName}
         </h2>
-        <span className="text-lg font-bold text-blue-600">
-          {formattedPrice}
-        </span>
+        <div className="mt-auto">
+          <span className="text-sm font-bold text-blue-600 block">
+            {formattedPrice}
+          </span>
+          <span className="text-[8px] text-gray-500 block">KDV DAHİL</span>
+        </div>
       </div>
     </Link>
   );
@@ -44,24 +47,27 @@ export const FamilyCard = ({ family }) => {
   return (
     <Link
       href={`/products/${family.familyCode}`}
-      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 flex flex-col justify-between"
+      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 w-28 h-52 m-1 flex flex-col"
     >
-      <div className="aspect-square relative">
+      <div className="min-h-28 bg-gray-200 flex items-center justify-center relative">
         <Image
           src={`/${family.familyCode}.webp`}
           alt={family.familyName}
           fill
-          className="object-cover rounded-t-lg"
+          className="object-cover"
         />
       </div>
       <Divider />
-      <div className="p-4 text-center">
-        <h2 className="text-sm font-semibold text-gray-800 mb-2">
+      <div className="p-2 flex flex-col h-[88px] text-center">
+        <h2 className="text-xs font-semibold text-gray-800 max-h-[40px] overflow-hidden px-1">
           {family.productName}
         </h2>
-        <span className="text-lg font-bold text-blue-600">
-          {formattedPrice}
-        </span>
+        <div className="mt-auto">
+          <span className="text-sm font-bold text-blue-600 block">
+            {formattedPrice}
+          </span>
+          <span className="text-[8px] text-gray-500 block">KDV DAHİL</span>
+        </div>
       </div>
     </Link>
   );

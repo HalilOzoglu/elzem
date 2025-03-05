@@ -68,7 +68,7 @@ export default async function SearchPage({ searchParams }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {results.map((item) =>
           item.type === "product" ? (
             <ProductCard key={item.productSku} product={item} />

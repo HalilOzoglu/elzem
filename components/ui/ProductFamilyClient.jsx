@@ -214,42 +214,45 @@ const ProductFamilyClient = ({ variants, product }) => {
           ))}
         </div>
 
-        {selectedVariant && (
+        {selectedVariant ? (
           <div className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-md font-semibold text-gray-700 mb-2">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Seçilen Varyant Bilgileri
               </h3>
-              <ul className="space-y-2">
-                <li className="flex justify-between">
-                  <span className="text-gray-600">SKU</span>
-                  <span className="text-gray-800">{selectedVariant.sku}</span>
+              <ul className="space-y-4">
+                <li className="flex flex-col">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Fiyat</span>
+                    <div className="flex flex-col items-end">
+                      <span className="text-xl font-semibold text-blue-600">
+                        {new Intl.NumberFormat("tr-TR", {
+                          style: "currency",
+                          currency: "TRY",
+                        }).format(selectedVariant.price)}
+                      </span>
+                      <span className="text-sm text-gray-500">KDV Dahil</span>
+                    </div>
+                  </div>
                 </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Fiyat</span>
-                  <span className="text-gray-800 font-semibold">
-                    {new Intl.NumberFormat("tr-TR", {
-                      style: "currency",
-                      currency: "TRY",
-                    }).format(selectedVariant.price)}
+                <li className="flex justify-between items-center">
+                  <span className="text-gray-600">Kutu İçi Sayısı</span>
+                  <span className="text-gray-800 font-medium">{selectedVariant.box} Adet</span>
+                </li>
+                <li className="flex justify-between items-center">
+                  <span className="text-gray-600">Stok Durumu</span>
+                  <span className="text-sm  py-1 bg-green-50 text-green-700 rounded-full font-medium">
+                    Stokta Var
                   </span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Kutu</span>
-                  <span className="text-gray-800">{selectedVariant.box}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Stok</span>
-                  <span className="text-gray-800">{selectedVariant.count}</span>
                 </li>
               </ul>
             </div>
 
-            <div className="flex gap-4">
-              <div className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              <div className="w-full sm:w-1/3">
                 <label
                   htmlFor="variant-quantity"
-                  className="block text-sm text-gray-600 mb-1"
+                  className="block text-sm font-medium text-gray-700 mb-1"
                 >
                   Adet
                 </label>
@@ -260,16 +263,45 @@ const ProductFamilyClient = ({ variants, product }) => {
                   max={selectedVariant.count}
                   value={quantity}
                   onChange={handleQuantityChange}
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedVariant || selectedVariant.count < 1}
-                className="flex-1 bg-blue-600 text-white rounded py-2 px-4 hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full sm:w-2/3 bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {selectedVariant.count < 1 ? "Stokta Yok" : "Sepete Ekle"}
+                <span>{selectedVariant.count < 1 ? "Stokta Yok" : "Sepete Ekle"}</span>
               </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-sm">
+              <div className="flex items-center justify-center h-48">
+                <div className="text-center">
+                  <div className="mb-3">
+                    <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">
+                    Varyant Seçimi Yapınız
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Fiyat ve stok bilgilerini görüntülemek için lütfen yukarıdaki varyant seçeneklerinden seçim yapınız.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              <div className="w-full sm:w-1/3">
+                <div className="h-[70px] bg-gray-100 rounded-lg animate-pulse"></div>
+              </div>
+              <div className="w-full sm:w-2/3">
+                <div className="h-[42px] bg-gray-100 rounded-lg animate-pulse"></div>
+              </div>
             </div>
           </div>
         )}

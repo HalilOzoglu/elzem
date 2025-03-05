@@ -36,9 +36,9 @@ const SingleProductCard = ({ product }) => {
   };
 
   return (
-    <div>
-      <div className="mb-6 md:flex md:gap-6">
-        <div className="relative w-full aspect-square md:w-1/2">
+    <div className="flex flex-col lg:flex-row gap-8 mb-8">
+      <div className="w-full lg:w-1/2">
+        <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg">
           <Image
             src={
               product.productSku
@@ -47,62 +47,68 @@ const SingleProductCard = ({ product }) => {
             }
             alt={product.productName || product.name}
             fill
-            className="object-cover rounded-lg"
+            className="object-cover hover:scale-105 transition-transform duration-300"
           />
         </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-blue-600">
-              {formattedPrice}
-            </span>
-            <span className="text-sm text-gray-500">
-              SKU: {product.productSku || product.sku}
+      </div>
+
+      <div className="w-full lg:w-1/2 space-y-6">
+        <div className="flex flex-col space-y-1">
+          <span className="text-3xl font-bold text-blue-600">
+            {formattedPrice}
+          </span>
+          <span className="text-sm text-gray-500">
+            KDV Dahil
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">Stok Durumu:</span>
+            <span className="text-sm px-3 py-1 bg-green-50 text-green-700 rounded-full font-medium">
+              Stokta Var
             </span>
           </div>
 
-          {(product.productCount || product.count) && (
-            <div className="mt-2 text-sm text-gray-600">
-              Stok Durumu:{" "}
-              <span className="font-medium">
-                {product.productCount || product.count} adet
-              </span>
-            </div>
-          )}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">Kutu İçi Sayısı:</span>
+            <span className="text-sm text-gray-800 font-medium">
+              {product.productBox || product.box} Adet
+            </span>
+          </div>
+        </div>
 
-          {product.productDetail && (
-            <div className="mt-4">
-              <h3 className="text-md font-semibold text-gray-700 mb-1">
-                Ürün Detayları
-              </h3>
-              <p className="text-sm text-gray-600">{product.productDetail}</p>
-            </div>
-          )}
+        {product.productDetail && (
+          <div className="prose prose-sm max-w-none">
+            <h3 className="text-lg font-semibold text-gray-800">Ürün Detayları</h3>
+            <p className="text-gray-600 leading-relaxed">{product.productDetail}</p>
+          </div>
+        )}
 
-          <div className="mt-4 flex gap-4">
-            <div className="flex-1">
-              <label
-                htmlFor="quantity"
-                className="block text-sm text-gray-600 mb-1"
-              >
-                Adet
-              </label>
-              <input
-                type="number"
-                id="quantity"
-                min="1"
-                max={product.productCount || product.count}
-                value={quantity}
-                onChange={handleQuantityChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-            <button
-              className="flex-1 bg-blue-600 text-white rounded py-2 px-4 hover:bg-blue-700 transition-colors"
-              onClick={handleAddToCart}
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <div className="w-full sm:w-1/3">
+            <label
+              htmlFor="quantity"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Sepete Ekle
-            </button>
+              Adet
+            </label>
+            <input
+              type="number"
+              id="quantity"
+              min="1"
+              max={product.productCount || product.count}
+              value={quantity}
+              onChange={handleQuantityChange}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            />
           </div>
+          <button
+            className="w-full sm:w-2/3 bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2"
+            onClick={handleAddToCart}
+          >
+            <span>Sepete Ekle</span>
+          </button>
         </div>
       </div>
       {showSuccessModal && (
