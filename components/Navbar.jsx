@@ -231,7 +231,7 @@ const Navbar = () => {
               </DropdownMenu>
             </Dropdown>
           ) : (
-            <button onClick={() => router.push('/')} className="flex items-center gap-2">
+            <button onClick={() => router.push('/giris')} className="flex items-center gap-2">
               <UserIcon className="h-6 w-6" />
               <span className="text-sm font-medium">Giriş Yap</span>
             </button>
