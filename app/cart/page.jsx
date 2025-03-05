@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
+import { TrashIcon, MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 const CartItem = ({ item, updateCartQuantity, removeFromCart }) => {
   const [inputValue, setInputValue] = React.useState(item.quantity.toString());
@@ -40,35 +41,49 @@ const CartItem = ({ item, updateCartQuantity, removeFromCart }) => {
   const price = item.price || item.productPrice || 0;
 
   return (
-    <div className="flex items-center gap-4 p-4 border rounded-md">
-      <div className="relative w-24 h-24">
+    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0">
         <Image
           src="/placeholder-product.jpg"
           alt={item.productName || item.name}
           fill
-          className="object-cover rounded-md"
+          className="object-cover"
         />
       </div>
-      <div className="flex-1">
-        <h2 className="text-xl font-semibold">
+      
+      <div className="flex-1 min-w-0">
+        <h2 className="text-lg font-medium text-gray-900 truncate">
           {item.productName || item.name}
         </h2>
-        <p className="text-gray-600">SKU: {item.sku}</p>
+        <p className="text-sm text-gray-500">SKU: {item.sku}</p>
         {item.variantInfo && (
-          <div className="text-sm text-gray-500">
-            {item.variantInfo.v1 && <span>{item.variantInfo.v1} </span>}
-            {item.variantInfo.v2 && <span>{item.variantInfo.v2} </span>}
-            {item.variantInfo.v3 && <span>{item.variantInfo.v3}</span>}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {item.variantInfo.v1 && (
+              <span className="px-2 py-1 text-xs bg-gray-100 rounded-full">
+                {item.variantInfo.v1}
+              </span>
+            )}
+            {item.variantInfo.v2 && (
+              <span className="px-2 py-1 text-xs bg-gray-100 rounded-full">
+                {item.variantInfo.v2}
+              </span>
+            )}
+            {item.variantInfo.v3 && (
+              <span className="px-2 py-1 text-xs bg-gray-100 rounded-full">
+                {item.variantInfo.v3}
+              </span>
+            )}
           </div>
         )}
       </div>
-      <div className="flex flex-col items-end">
-        <div className="flex items-center border rounded">
+
+      <div className="flex flex-row md:flex-col items-center gap-4 w-full md:w-auto">
+        <div className="flex items-center border rounded-lg overflow-hidden bg-gray-50">
           <button
             onClick={handleDecrease}
-            className="px-3 py-1 bg-gray-200 hover:bg-gray-300"
+            className="p-2 hover:bg-gray-100 transition-colors"
           >
-            -
+            <MinusIcon className="w-4 h-4" />
           </button>
           <input
             type="number"
@@ -76,37 +91,38 @@ const CartItem = ({ item, updateCartQuantity, removeFromCart }) => {
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
-            className="w-16 text-center border-0 focus:ring-0"
+            className="w-16 text-center border-0 bg-transparent focus:ring-0"
           />
           <button
             onClick={() => updateCartQuantity(item.sku, item.quantity + 1)}
-            className="px-3 py-1 bg-gray-200 hover:bg-gray-300"
+            className="p-2 hover:bg-gray-100 transition-colors"
           >
-            +
+            <PlusIcon className="w-4 h-4" />
           </button>
         </div>
-        <div className="text-right">
-          <p className="text-xl font-bold">
+
+        <div className="text-right md:min-w-[120px]">
+          <p className="text-lg font-semibold text-gray-900">
             {new Intl.NumberFormat("tr-TR", {
               style: "currency",
               currency: "TRY",
             }).format(item.quantity * price)}
           </p>
           <p className="text-sm text-gray-500">
-            {item.quantity} x{" "}
             {new Intl.NumberFormat("tr-TR", {
               style: "currency",
               currency: "TRY",
-            }).format(price)}
+            }).format(price)} / adet
           </p>
         </div>
+
+        <button
+          onClick={() => removeFromCart(item.sku)}
+          className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+        >
+          <TrashIcon className="w-5 h-5" />
+        </button>
       </div>
-      <button
-        onClick={() => removeFromCart(item.sku)}
-        className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700 transition-colors"
-      >
-        Sil
-      </button>
     </div>
   );
 };
@@ -151,10 +167,7 @@ const CartPage = () => {
       }
 
       // Başarılı sipariş sonrası işlemler
-      alert("Siparişiniz başarıyla oluşturuldu!");
-      // Sepeti temizle
       cart.forEach(item => removeFromCart(item.sku));
-      // Siparişlerim sayfasına yönlendir
       router.push("/hesabim/siparislerim");
       
     } catch (err) {
@@ -166,56 +179,89 @@ const CartPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Sepetiniz</h1>
-      {cart.length === 0 ? (
-        <p>Sepetiniz boş.</p>
-      ) : (
-        <div className="space-y-6">
-          {cart.map((item) => (
-            <CartItem
-              key={item.sku || item.productSku}
-              item={item}
-              updateCartQuantity={updateCartQuantity}
-              removeFromCart={removeFromCart}
-            />
-          ))}
-          <div className="text-right">
-            <h2 className="text-2xl font-bold">
-              Toplam:{" "}
-              {new Intl.NumberFormat("tr-TR", {
-                style: "currency",
-                currency: "TRY",
-              }).format(totalPrice)}
-            </h2>
+    <div className="min-h-screen pt-7 bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
+          Alışveriş Sepeti {cart.length > 0 && `(${cart.length} Ürün)`}
+        </h1>
+
+        {cart.length === 0 ? (
+          <div className="bg-white p-8 rounded-lg shadow-sm text-center">
+            <p className="text-gray-500 mb-4">Sepetinizde ürün bulunmuyor.</p>
+            <Button
+              onPress={() => router.push("/")}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Alışverişe Başla
+            </Button>
           </div>
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-              {error}
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+              {cart.map((item) => (
+                <CartItem
+                  key={item.sku || item.productSku}
+                  item={item}
+                  updateCartQuantity={updateCartQuantity}
+                  removeFromCart={removeFromCart}
+                />
+              ))}
             </div>
-          )}
-          <div className="text-right">
-            {!session ? (
-              <Button
-                onClick={() => router.push("/giris")}
-                className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors"
-              >
-                Giriş Yap
-              </Button>
-            ) : (
-              <Button
-                onClick={handleCheckout}
-                disabled={isLoading}
-                className={`bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors ${
-                  isLoading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                {isLoading ? "İşleniyor..." : "Siparişi Onayla"}
-              </Button>
-            )}
+
+            <div className="lg:col-span-1">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 sticky top-4">
+                <h2 className="text-xl font-semibold mb-4">Sipariş Özeti</h2>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Ara Toplam</span>
+                    <span>
+                      {new Intl.NumberFormat("tr-TR", {
+                        style: "currency",
+                        currency: "TRY",
+                      }).format(totalPrice)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-lg">
+                    <span>Toplam</span>
+                    <span>
+                      {new Intl.NumberFormat("tr-TR", {
+                        style: "currency",
+                        currency: "TRY",
+                      }).format(totalPrice)}
+                    </span>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {!session ? (
+                  <Button
+                    onPress={() => router.push("/giris")}
+                    className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    Giriş Yap
+                  </Button>
+                ) : (
+                  <Button
+                    onPress={handleCheckout}
+                    disabled={isLoading}
+                    className={`w-full bg-blue-600 text-white hover:bg-blue-700 ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {isLoading ? "İşleniyor..." : "Siparişi Onayla"}
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

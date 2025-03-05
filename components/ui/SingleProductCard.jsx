@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
-import SuccessModal from "./SuccessModal";
 
 const SingleProductCard = ({ product }) => {
   const [quantity, setQuantity] = useState("1");
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const { addToCart } = useCart();
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "currency",
@@ -29,11 +28,25 @@ const SingleProductCard = ({ product }) => {
     }
   };
 
-  const handleAddToCart = () => {
-    addToCart(product, quantity);
+  const handleAddToCart = useCallback(() => {
+    if (isAdding) return;
+    
+    setIsAdding(true);
+    const cartItem = {
+      ...product,
+      productName: product.productName || product.name,
+      sku: product.productSku || product.sku,
+      price: product.productPrice || product.price,
+      count: product.productCount || product.count,
+      box: product.productBox || product.box,
+    };
+    addToCart(cartItem, quantity);
     setQuantity("1");
-    setShowSuccessModal(true);
-  };
+    
+    setTimeout(() => {
+      setIsAdding(false);
+    }, 500);
+  }, [isAdding, product, quantity, addToCart]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 mb-8">
@@ -104,19 +117,16 @@ const SingleProductCard = ({ product }) => {
             />
           </div>
           <button
-            className="w-full sm:w-2/3 bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2"
+            className={`w-full sm:w-2/3 bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 ${
+              isAdding ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             onClick={handleAddToCart}
+            disabled={isAdding}
           >
-            <span>Sepete Ekle</span>
+            <span>{isAdding ? "Ekleniyor..." : "Sepete Ekle"}</span>
           </button>
         </div>
       </div>
-      {showSuccessModal && (
-        <SuccessModal
-          message="Ürün sepete eklendi!"
-          onClose={() => setShowSuccessModal(false)}
-        />
-      )}
     </div>
   );
 };

@@ -1,10 +1,24 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { addToast } from "@heroui/toast";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const toastTimeoutRef = useRef({});
+
+  const showToast = useCallback((message) => {
+    const toastKey = JSON.stringify(message);
+    if (toastTimeoutRef.current[toastKey]) return;
+
+    addToast(message);
+    toastTimeoutRef.current[toastKey] = true;
+
+    setTimeout(() => {
+      toastTimeoutRef.current[toastKey] = false;
+    }, 1500);
+  }, []);
 
   // Uygulama açılır açılmaz localStorage'dan sepet verilerini oku
   useEffect(() => {
@@ -14,60 +28,122 @@ export const CartProvider = ({ children }) => {
         setCart(JSON.parse(storedCart));
       } catch (error) {
         console.error("Sepet verileri okunurken hata oluştu:", error);
+        showToast({
+          title: "Hata",
+          description: "Sepet verileri yüklenirken bir hata oluştu",
+          variant: "solid",
+          timeout: 1500,
+          color: "danger"
+        });
       }
     }
-  }, []);
+  }, [showToast]);
 
   // Sepet her güncellendiğinde localStorage'e kaydet
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  const addToCart = (item, quantity) => {
-    const numericQuantity = parseInt(quantity) || 1;
-
-    const mergedItem = item.variant
-      ? {
-          ...item,
-          sku: item.variant.sku,
-          price: item.variant.price,
-          count: item.variant.count,
-          box: item.variant.box,
-          variantInfo: {
-            v1: item.variant.v1,
-            v2: item.variant.v2,
-            v3: item.variant.v3,
-          },
-        }
-      : {
-          ...item,
-          sku: item.productSku,
-          price: item.productPrice,
-        };
-
-    setCart((prevCart) => {
-      const itemIndex = prevCart.findIndex((cartItem) => {
-        if (mergedItem.sku) {
-          return cartItem.sku === mergedItem.sku;
-        }
-        return cartItem._id === mergedItem._id;
+    try {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    } catch (error) {
+      console.error("Sepet verileri kaydedilirken hata oluştu:", error);
+      showToast({
+        title: "Hata",
+        description: "Sepet verileri kaydedilirken bir hata oluştu",
+        variant: "solid",
+        timeout: 1500,
+        color: "danger"
       });
+    }
+  }, [cart, showToast]);
 
-      if (itemIndex > -1) {
-        const updatedCart = [...prevCart];
-        updatedCart[itemIndex].quantity += numericQuantity;
-        return updatedCart;
+  const addToCart = useCallback((item, quantity = 1) => {
+    try {
+      if (!item) {
+        throw new Error("Ürün bilgisi eksik");
       }
-      return [...prevCart, { ...mergedItem, quantity: numericQuantity }];
+
+      const numericQuantity = parseInt(quantity) || 1;
+      
+      // Ürün verilerini güvenli bir şekilde birleştir
+      const mergedItem = {
+        ...item,
+        sku: item.variant ? item.variant.sku : (item.productSku || item.sku),
+        price: item.variant ? item.variant.price : (item.productPrice || item.price),
+        productName: item.productName || item.familyName || item.name,
+        quantity: numericQuantity,
+      };
+
+      // Varyant bilgisi varsa ekle
+      if (item.variant) {
+        mergedItem.variantInfo = {
+          v1: item.variant.v1 || null,
+          v2: item.variant.v2 || null,
+          v3: item.variant.v3 || null,
+        };
+      }
+
+      setCart((prevCart) => {
+        // Önce mevcut sepeti kontrol et
+        const existingItemIndex = prevCart.findIndex((cartItem) => cartItem.sku === mergedItem.sku);
+
+        // Eğer ürün zaten sepette varsa
+        if (existingItemIndex > -1) {
+          const updatedCart = [...prevCart];
+          updatedCart[existingItemIndex] = {
+            ...updatedCart[existingItemIndex],
+            quantity: updatedCart[existingItemIndex].quantity + numericQuantity
+          };
+          
+          showToast({
+            title: "Ürün Güncellendi",
+            description: `${mergedItem.productName} (${updatedCart[existingItemIndex].quantity} adet)`,
+            variant: "solid",
+            timeout: 1500,
+            color: "secondary"
+          }); 
+          
+          return updatedCart;
+        }
+
+        // Eğer ürün sepette yoksa
+        showToast({
+          title: "Ürün Eklendi",
+          description: mergedItem.productName,
+          variant: "solid",
+          timeout: 1500,
+          color: "success"
+        });
+        
+        return [...prevCart, mergedItem];
+      });
+    } catch (error) {
+      console.error("Sepete ekleme hatası:", error);
+      showToast({
+        title: "Hata",
+        description: "Ürün sepete eklenirken bir hata oluştu",
+        variant: "solid",
+        timeout: 1500,
+        color: "danger"
+      });
+    }
+  }, [showToast]);
+
+  const removeFromCart = useCallback((itemSku) => {
+    setCart((prevCart) => {
+      const itemToRemove = prevCart.find(item => item.sku === itemSku);
+      if (itemToRemove) {
+        showToast({
+          title: "Ürün Kaldırıldı",
+          description: itemToRemove.productName,
+          variant: "solid",
+          timeout: 1500,
+          color: "danger"
+        });
+      }
+      return prevCart.filter((item) => item.sku !== itemSku);
     });
-  };
+  }, [showToast]);
 
-  const removeFromCart = (itemSku) => {
-    setCart((prevCart) => prevCart.filter((item) => item.sku !== itemSku));
-  };
-
-  // Sepetteki belirli ürünün adet bilgisini güncelleyen fonksiyon
-  const updateCartQuantity = (itemSku, newQuantity) => {
+  const updateCartQuantity = useCallback((itemSku, newQuantity) => {
     setCart((prevCart) =>
       prevCart.map((item) => {
         if (item.sku === itemSku) {
@@ -76,9 +152,9 @@ export const CartProvider = ({ children }) => {
         return item;
       })
     );
-  };
+  }, []);
 
-  // Sepet simgesinde gösterilecek sayı, benzersiz ürün sayısına göre hesaplanır.
+  // Sepetteki belirli ürünün adet bilgisini güncelleyen fonksiyon
   const cartItemsCount = cart.length;
 
   return (

@@ -2,7 +2,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
-import SuccessModal from "./SuccessModal";
 
 const ProductFamilyClient = ({ variants, product }) => {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -12,7 +11,7 @@ const ProductFamilyClient = ({ variants, product }) => {
   });
 
   const [quantity, setQuantity] = useState("1");
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const { addToCart } = useCart();
 
   const variantNames = useMemo(
@@ -156,21 +155,24 @@ const ProductFamilyClient = ({ variants, product }) => {
   );
 
   const handleAddToCart = useCallback(() => {
-    if (selectedVariant) {
-      const cartItem = {
-        ...product,
-        variant: selectedVariant,
-        // Varyant bilgilerini ana seviyeye taşıyoruz
-        sku: selectedVariant.sku,
-        price: selectedVariant.price,
-        count: selectedVariant.count,
-        box: selectedVariant.box,
-      };
-      addToCart(cartItem, quantity);
-      setQuantity("1"); // Varsayılan değer olarak 1'e çekiyoruz
-      setShowSuccessModal(true);
-    }
-  }, [selectedVariant, quantity, product, addToCart]);
+    if (isAdding || !selectedVariant) return;
+    
+    setIsAdding(true);
+    const cartItem = {
+      ...product,
+      variant: selectedVariant,
+      sku: selectedVariant.sku,
+      price: selectedVariant.price,
+      count: selectedVariant.count,
+      box: selectedVariant.box,
+    };
+    addToCart(cartItem, quantity);
+    setQuantity("1");
+    
+    setTimeout(() => {
+      setIsAdding(false);
+    }, 500);
+  }, [isAdding, selectedVariant, quantity, product, addToCart]);
 
   return (
     <div className="md:flex md:gap-6">
@@ -268,10 +270,18 @@ const ProductFamilyClient = ({ variants, product }) => {
               </div>
               <button
                 onClick={handleAddToCart}
-                disabled={!selectedVariant || selectedVariant.count < 1}
-                className="w-full sm:w-2/3 bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled={!selectedVariant || selectedVariant.count < 1 || isAdding}
+                className={`w-full sm:w-2/3 bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:bg-gray-400 disabled:cursor-not-allowed ${
+                  isAdding ? "opacity-50" : ""
+                }`}
               >
-                <span>{selectedVariant.count < 1 ? "Stokta Yok" : "Sepete Ekle"}</span>
+                <span>
+                  {isAdding
+                    ? "Ekleniyor..."
+                    : selectedVariant?.count < 1
+                    ? "Stokta Yok"
+                    : "Sepete Ekle"}
+                </span>
               </button>
             </div>
           </div>
@@ -306,12 +316,6 @@ const ProductFamilyClient = ({ variants, product }) => {
           </div>
         )}
       </div>
-      {showSuccessModal && (
-        <SuccessModal
-          message={`Ürün sepete başarıyla eklendi!`}
-          onClose={() => setShowSuccessModal(false)}
-        />
-      )}
     </div>
   );
 };
