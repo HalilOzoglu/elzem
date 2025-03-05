@@ -149,7 +149,9 @@ export default function App() {
       const response = await fetch("/api/products");
       const data = await response.json();
       setProducts(data); // Verileri state'e kaydet
-      console.log("API'den gelen veri:", data); // Gelen veriyi kontrol et
+      console.log("API'den gelen veri:", data); // Tüm veriyi kontrol et
+      console.log("İlk ürünün fiyatı:", data[0]?.productPrice); // İlk ürünün fiyatını özel olarak kontrol et
+      console.log("Ürünlerin fiyat tipleri:", data.map(p => ({ sku: p.productSku, price: p.productPrice, type: typeof p.productPrice })));
     } catch (error) {
       console.error("Veriler alınırken hata oluştu:", error);
     }

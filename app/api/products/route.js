@@ -11,7 +11,7 @@ export async function GET(req) {
     // Varyant olmayan ürünleri getir ve sıralamaya göre sırala
     const products = await Product.find({ isVariant: false })
       .sort('order')
-      .select('productName productBrand productCategory productSku order');
+      .select('productName productBrand productCategory productSku productPrice productCount order');
 
     return NextResponse.json(products);
   } catch (error) {
