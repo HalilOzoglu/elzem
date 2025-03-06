@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import { writeFile, unlink } from "fs/promises";
-import path from "path";
-import sharp from "sharp";
+import { put } from '@vercel/blob';
 import dbConnect from "@/utils/dbConnect";
 import Product from "@/models/product";
 import Family from "@/models/family";
 
 export async function POST(request) {
-  let uploadedFilePath = null;
-  
   try {
     const formData = await request.formData();
     const file = formData.get("file");
@@ -32,21 +28,11 @@ export async function POST(request) {
 
     await dbConnect();
 
-    // Dosya adını oluştur
-    const fileName = `${id}.webp`;
-    const uploadDir = path.join(process.cwd(), "public");
-    const filePath = path.join(uploadDir, fileName);
-
-    // Dosyayı buffer'a çevir
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Görüntüyü webp formatına dönüştür ve kaydet
-    await sharp(buffer)
-      .webp({ quality: 80 })
-      .toFile(filePath);
-
-    uploadedFilePath = filePath;
+    // Dosyayı Vercel Blob Storage'a yükle
+    const blob = await put(`${type}/${id}.webp`, file, {
+      access: 'public',
+      addRandomSuffix: false,
+    });
 
     // Veritabanını güncelle
     if (type === "products") {
@@ -54,8 +40,8 @@ export async function POST(request) {
         { productSku: id },
         { 
           $set: { 
-            productImg1: `/${fileName}`,
-            productImgMini: `/${fileName}`
+            productImg1: blob.url,
+            productImgMini: blob.url
           } 
         }
       );
@@ -64,8 +50,8 @@ export async function POST(request) {
         { familyCode: id },
         { 
           $set: { 
-            productImg1: `/${fileName}`,
-            productImgMini: `/${fileName}`
+            productImg1: blob.url,
+            productImgMini: blob.url
           } 
         }
       );
@@ -77,16 +63,6 @@ export async function POST(request) {
     );
   } catch (error) {
     console.error("Yükleme hatası:", error);
-    
-    // Hata durumunda yüklenen dosyayı sil
-    if (uploadedFilePath) {
-      try {
-        await unlink(uploadedFilePath);
-      } catch (unlinkError) {
-        console.error("Dosya silme hatası:", unlinkError);
-      }
-    }
-
     return NextResponse.json(
       { success: false, message: "Fotoğraf yüklenirken bir hata oluştu" },
       { status: 500 }

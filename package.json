@@ -31,6 +31,7 @@
   "@heroui/toast": "^2.0.5",
   "@react-aria/ssr": "3.9.7",
   "@react-aria/visually-hidden": "3.8.18",
+  "@vercel/blob": "^0.27.2",
   "axios": "^1.7.9",
   "bcryptjs": "^3.0.2",
   "clsx": "2.1.1",
