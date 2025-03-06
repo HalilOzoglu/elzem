@@ -3,6 +3,7 @@ import { put } from '@vercel/blob';
 import dbConnect from "@/utils/dbConnect";
 import Product from "@/models/product";
 import Family from "@/models/family";
+import sharp from "sharp";
 
 export const config = {
   api: {
@@ -34,11 +35,25 @@ export async function POST(request) {
 
     await dbConnect();
 
+    // Dosyayı buffer'a çevir
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Sharp ile webp'ye dönüştür ve optimize et
+    const webpBuffer = await sharp(buffer)
+      .resize(800, 800, { 
+        fit: 'inside',
+        withoutEnlargement: true 
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+
     // Dosyayı Vercel Blob Storage'a yükle
-    const blob = await put(`${type}/${id}.webp`, file, {
+    const blob = await put(`${type}/${id}.webp`, webpBuffer, {
       access: 'public',
       addRandomSuffix: false,
-      token: process.env.BLOB_READ_WRITE_TOKEN
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      contentType: 'image/webp'
     });
 
     // Veritabanını güncelle

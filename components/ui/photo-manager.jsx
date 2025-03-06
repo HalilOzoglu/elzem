@@ -56,6 +56,12 @@ export default function PhotoManager() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Dosya tipini kontrol et
+      if (!file.type.startsWith('image/')) {
+        alert('Lütfen bir resim dosyası seçin');
+        return;
+      }
+      
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -68,13 +74,14 @@ export default function PhotoManager() {
   const handleUpload = async () => {
     if (!selectedFile || !selectedItem) return;
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("type", activeTab);
-    formData.append("id", activeTab === "products" ? selectedItem.productSku : selectedItem.familyCode);
-
     try {
       setIsLoading(true);
+
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("type", activeTab);
+      formData.append("id", activeTab === "products" ? selectedItem.productSku : selectedItem.familyCode);
+
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -97,7 +104,7 @@ export default function PhotoManager() {
       }
     } catch (error) {
       console.error("Yükleme hatası:", error);
-      alert("Fotoğraf yüklenirken bir hata oluştu!");
+      alert("Fotoğraf yüklenirken bir hata oluştu: " + error.message);
     } finally {
       setIsLoading(false);
     }
