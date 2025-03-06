@@ -5,12 +5,6 @@ import Product from "@/models/product";
 import Family from "@/models/family";
 import sharp from "sharp";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -49,12 +43,35 @@ export async function POST(request) {
       .toBuffer();
 
     // Dosyayı Vercel Blob Storage'a yükle
-    const blob = await put(`${type}/${id}.webp`, webpBuffer, {
-      access: 'public',
-      addRandomSuffix: false,
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-      contentType: 'image/webp'
-    });
+    let blob;
+    try {
+      blob = await put(`${type}/${id}.webp`, webpBuffer, {
+        access: 'public',
+        addRandomSuffix: false,
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+        contentType: 'image/webp'
+      });
+    } catch (blobError) {
+      console.error("Blob storage hatası:", blobError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: "Fotoğraf Vercel Blob Storage'a yüklenirken hata oluştu",
+          error: blobError.message 
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!blob || !blob.url) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: "Blob URL oluşturulamadı" 
+        },
+        { status: 500 }
+      );
+    }
 
     // Veritabanını güncelle
     if (type === "products") {

@@ -15,7 +15,7 @@ async function getSearchResults(query) {
       { productDetail: { $regex: query, $options: "i" } },
     ],
   })
-    .select("productName productSku productBrand productCategory productPrice productDetail")
+    .select("productName productSku productBrand productCategory productPrice productDetail productImg1 productImgMini")
     .lean();
 
   // Aileleri arama
@@ -27,7 +27,7 @@ async function getSearchResults(query) {
       { familyDetail: { $regex: query, $options: "i" } },
     ],
   })
-    .select("familyName familyCode familyBrand familyCategory familyBasePrice familyDetail")
+    .select("familyName familyCode familyBrand familyCategory familyBasePrice familyDetail productImg1 productImgMini")
     .lean();
 
   // Sonuçları birleştir ve dönüştür
