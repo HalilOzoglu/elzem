@@ -4,6 +4,12 @@ import dbConnect from "@/utils/dbConnect";
 import Product from "@/models/product";
 import Family from "@/models/family";
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -32,6 +38,7 @@ export async function POST(request) {
     const blob = await put(`${type}/${id}.webp`, file, {
       access: 'public',
       addRandomSuffix: false,
+      token: process.env.BLOB_READ_WRITE_TOKEN
     });
 
     // Veritabanını güncelle
@@ -58,13 +65,13 @@ export async function POST(request) {
     }
 
     return NextResponse.json(
-      { success: true, message: "Fotoğraf başarıyla yüklendi" },
+      { success: true, message: "Fotoğraf başarıyla yüklendi", url: blob.url },
       { status: 200 }
     );
   } catch (error) {
     console.error("Yükleme hatası:", error);
     return NextResponse.json(
-      { success: false, message: "Fotoğraf yüklenirken bir hata oluştu" },
+      { success: false, message: "Fotoğraf yüklenirken bir hata oluştu", error: error.message },
       { status: 500 }
     );
   }

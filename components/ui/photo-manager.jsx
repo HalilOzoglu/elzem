@@ -26,6 +26,7 @@ export default function PhotoManager() {
   const rowsPerPage = 10;
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -73,10 +74,13 @@ export default function PhotoManager() {
     formData.append("id", activeTab === "products" ? selectedItem.productSku : selectedItem.familyCode);
 
     try {
+      setIsLoading(true);
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         alert("Fotoğraf başarıyla yüklendi!");
@@ -88,11 +92,14 @@ export default function PhotoManager() {
           fetchFamilies();
         }
       } else {
-        alert("Fotoğraf yüklenirken bir hata oluştu!");
+        console.error("Yükleme hatası:", data);
+        alert(`Fotoğraf yüklenirken bir hata oluştu: ${data.message || data.error || 'Bilinmeyen hata'}`);
       }
     } catch (error) {
       console.error("Yükleme hatası:", error);
       alert("Fotoğraf yüklenirken bir hata oluştu!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
