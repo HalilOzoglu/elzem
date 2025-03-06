@@ -15,12 +15,18 @@ export const ProductCard = ({ product }) => {
       className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 w-28 h-52 m-1 flex flex-col"
     >
       <div className="min-h-28 bg-gray-200 flex items-center justify-center relative">
-        <Image
-          src={`/${product.productSku}.webp`}
-          alt={product.productName}
-          fill
-          className="object-cover"
-        />
+        {product.productImg1 ? (
+          <Image
+            src={product.productImg1}
+            alt={product.productName}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-gray-400">Fotoğraf Yok</span>
+          </div>
+        )}
       </div>
       <Divider />
       <div className="p-2 flex flex-col h-[88px] text-center">
@@ -50,12 +56,18 @@ export const FamilyCard = ({ family }) => {
       className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-100 w-28 h-52 m-1 flex flex-col"
     >
       <div className="min-h-28 bg-gray-200 flex items-center justify-center relative">
-        <Image
-          src={`/${family.familyCode}.webp`}
-          alt={family.familyName}
-          fill
-          className="object-cover"
-        />
+        {family.productImg1 ? (
+          <Image
+            src={family.productImg1}
+            alt={family.familyName}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-gray-400">Fotoğraf Yok</span>
+          </div>
+        )}
       </div>
       <Divider />
       <div className="p-2 flex flex-col h-[88px] text-center">

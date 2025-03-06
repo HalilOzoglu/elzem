@@ -17,12 +17,12 @@ async function getCategoriesWithProducts() {
     let [products, families] = await Promise.all([
       Product.find({})
         .select(
-          "productCategory productName productPrice productDetail productCount productSku order"
+          "productCategory productName productPrice productDetail productCount productSku productImg1 productImgMini productImg2 productImg3 order"
         )
         .lean(),
       Family.find({})
         .select(
-          "familyName familyCategory familyDetail familyCode familyBasePrice order"
+          "familyName familyCategory familyDetail familyCode familyBasePrice productImg1 productImgMini productImg2 productImg3 order"
         )
         .lean(),
     ]);
@@ -42,6 +42,10 @@ async function getCategoriesWithProducts() {
         productDetail: family.familyDetail,
         productPrice: family.familyBasePrice,
         productSku: family.familyCode,
+        productImg1: family.productImg1,
+        productImgMini: family.productImgMini,
+        productImg2: family.productImg2,
+        productImg3: family.productImg3,
         type: "family"
       }))
     ];

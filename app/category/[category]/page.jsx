@@ -9,11 +9,11 @@ async function getCategoryProducts(category) {
   await dbConnect();
 
   const products = await Product.find({ productCategory: category })
-    .select("productCategory productName productPrice productDetail productCount productSku")
+    .select("productCategory productName productPrice productDetail productCount productSku productImg1")
     .lean();
 
   const families = await Family.find({ familyCategory: category })
-    .select("familyName familyCategory familyDetail familyCode familyBasePrice")
+    .select("familyName familyCategory familyDetail familyCode familyBasePrice productImg1")
     .lean();
 
   const formattedProducts = [
@@ -30,6 +30,7 @@ async function getCategoryProducts(category) {
       productDetail: family.familyDetail,
       productPrice: family.familyBasePrice,
       productSku: family.familyCode,
+      productImg1: family.productImg1,
       type: "family"
     }))
   ];

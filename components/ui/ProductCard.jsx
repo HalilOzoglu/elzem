@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Divider } from "@heroui/react";
+import { useState } from "react";
 
 const ProductCard = ({ product }) => {
+  const [imgSrc, setImgSrc] = useState(product.productImgMini || product.productImg1 || "/placeholder-product.jpg");
+  
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "currency",
     currency: "TRY",
@@ -15,10 +20,12 @@ const ProductCard = ({ product }) => {
     >
       <div className="min-h-28 bg-gray-200 flex items-center justify-center relative">
         <Image
-          src={`/${product.productSku}.webp`}
+          src={imgSrc}
           alt={product.productName}
           fill
           className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          onError={() => setImgSrc("/placeholder-product.jpg")}
         />
       </div>
       <Divider />

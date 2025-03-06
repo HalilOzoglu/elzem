@@ -12,7 +12,16 @@ export async function GET() {
     // Ürünleri al
     const products = await Product.aggregate([
       { $limit: 10 },
-      { $project: { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 } },
+      { 
+        $project: { 
+          _id: 0, 
+          __v: 0, 
+          createdAt: 0, 
+          updatedAt: 0,
+          productImg1: 1,
+          productImgMini: 1
+        } 
+      },
     ]);
 
     // Aile varyantlarını al
@@ -30,6 +39,8 @@ export async function GET() {
           familyCategory: 1,
           familyBrand: 1,
           familyDetail: 1,
+          productImg1: 1,
+          productImgMini: 1
         },
       },
     ]);
@@ -43,6 +54,8 @@ export async function GET() {
         productCategory: f.familyCategory,
         productBrand: f.familyBrand,
         productDetail: f.familyDetail,
+        productImg1: f.productImg1,
+        productImgMini: f.productImgMini,
         type: "variant",
       })),
     ];

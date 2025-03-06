@@ -4,6 +4,7 @@ import ProductFamily from "@/components/ui/family";
 import { Tab, Tabs } from "@heroui/tabs";
 import { Divider } from "@heroui/react";
 import OrderList from "@/components/OrderList";
+import PhotoManager from "@/components/ui/photo-manager";
 export default function CreatePage() {
   return (
     <div className="">
@@ -18,6 +19,9 @@ export default function CreatePage() {
         </Tab>
         <Tab title="Sıralama">
           <OrderList />
+        </Tab>
+        <Tab title="Fotoğraf Yöneticisi">
+          <PhotoManager />
         </Tab>
       </Tabs>
     </div>

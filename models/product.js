@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 // Şema tanımı
 const productSchema = new mongoose.Schema(
@@ -64,5 +64,6 @@ const productSchema = new mongoose.Schema(
 );
 
 // Model oluşturma
-export default mongoose.models.Product ||
-  mongoose.model("Product", productSchema);
+const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
+
+module.exports = Product;

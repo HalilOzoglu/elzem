@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const generateFamilyCode = async () => {
   const random = Math.floor(1000 + Math.random() * 9000);
@@ -33,6 +33,10 @@ const familySchema = new mongoose.Schema(
     isVariant: { type: Boolean, default: true },
     variants: [variantSchema],
     order: { type: Number, default: 0 },
+    productImg1: { type: String },
+    productImg2: { type: String },
+    productImg3: { type: String },
+    productImgMini: { type: String },
   },
   { timestamps: true }
 );
@@ -44,4 +48,6 @@ familySchema.pre("save", async function (next) {
   next();
 });
 
-export default mongoose.models.Family || mongoose.model("Family", familySchema);
+const Family = mongoose.models.Family || mongoose.model("Family", familySchema);
+
+module.exports = Family;

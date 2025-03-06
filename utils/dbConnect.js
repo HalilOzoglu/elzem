@@ -1,11 +1,18 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
+const dotenv = require('dotenv');
+const path = require('path');
+
+// .env.local dosyasını yükle
+dotenv.config({ path: path.join(__dirname, '..', '.env.local') });
+
+// Hata ayıklama için ortam değişkenlerini kontrol et
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Tanımlı' : 'Tanımlı değil');
+console.log('ENV dosyası yolu:', path.join(__dirname, '..', '.env.local'));
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error(
-    "Lütfen MongoDB bağlantı URI'nizi .env.local dosyasında tanımlayın"
-  );
+  throw new Error("MONGODB_URI ortam değişkeni tanımlanmamış.");
 }
 
 let cached = global.mongoose;
@@ -39,4 +46,4 @@ async function dbConnect() {
   return cached.conn;
 }
 
-export default dbConnect;
+module.exports = dbConnect;

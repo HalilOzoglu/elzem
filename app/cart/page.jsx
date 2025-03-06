@@ -44,10 +44,14 @@ const CartItem = ({ item, updateCartQuantity, removeFromCart }) => {
     <div className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
       <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0">
         <Image
-          src="/placeholder-product.jpg"
+          src={item.productImg1 || "/placeholder-product.jpg"}
           alt={item.productName || item.name}
           fill
           className="object-cover"
+          onError={(e) => {
+            console.error("Fotoğraf yüklenemedi:", item.productImg1);
+            e.target.src = "/placeholder-product.jpg";
+          }}
         />
       </div>
       

@@ -69,7 +69,7 @@ export const CartProvider = ({ children }) => {
         sku: item.variant ? item.variant.sku : (item.productSku || item.sku),
         price: item.variant ? item.variant.price : (item.productPrice || item.price),
         productName: item.productName || item.familyName || item.name,
-        quantity: numericQuantity,
+        quantity: numericQuantity
       };
 
       // Varyant bilgisi varsa ekle
@@ -79,6 +79,9 @@ export const CartProvider = ({ children }) => {
           v2: item.variant.v2 || null,
           v3: item.variant.v3 || null,
         };
+        // Varyantlı ürünlerde ailenin fotoğrafını kullan
+        mergedItem.productImg1 = item.productImg1;
+        mergedItem.productImgMini = item.productImgMini;
       }
 
       setCart((prevCart) => {

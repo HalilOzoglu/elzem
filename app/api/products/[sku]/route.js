@@ -11,14 +11,14 @@ export async function GET(request, { params }) {
 
     // Önce product kontrolü
     let data = await Product.findOne({ productSku: sku })
-      .select("-__v -createdAt -updatedAt")
+      .select("-__v -createdAt -updatedAt productImg1 productImgMini")
       .lean();
     let type = "product";
 
     if (!data) {
       // Product bulunamazsa family kontrolü
       const family = await Family.findOne({ familyCode: sku })
-        .select("-__v -createdAt -updatedAt")
+        .select("-__v -createdAt -updatedAt productImg1 productImgMini")
         .lean();
 
       if (!family) {
@@ -34,6 +34,8 @@ export async function GET(request, { params }) {
         productCategory: family.familyCategory,
         productDetail: family.familyDetail,
         variants: family.variants,
+        productImg1: family.productImg1,
+        productImgMini: family.productImgMini
       };
       type = "family";
     }

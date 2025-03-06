@@ -177,16 +177,18 @@ const ProductFamilyClient = ({ variants, product }) => {
   return (
     <div className="md:flex md:gap-6">
       <div className="relative w-full aspect-square md:w-1/2">
-        <Image
-          src={
-            product.familyCode
-              ? `/${product.familyCode}.webp`
-              : "/placeholder-product.jpg"
-          }
-          alt={product.name}
-          fill
-          className="object-cover rounded-lg"
-        />
+        {product.productImg1 ? (
+          <Image
+            src={product.productImg1}
+            alt={product.name}
+            fill
+            className="object-cover rounded-lg"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+            <span className="text-gray-400">Fotoğraf Yok</span>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 space-y-6">

@@ -52,16 +52,18 @@ const SingleProductCard = ({ product }) => {
     <div className="flex flex-col lg:flex-row gap-8 mb-8">
       <div className="w-full lg:w-1/2">
         <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg">
-          <Image
-            src={
-              product.productSku
-                ? `/${product.productSku}.webp`
-                : "/placeholder-product.jpg"
-            }
-            alt={product.productName || product.name}
-            fill
-            className="object-cover hover:scale-105 transition-transform duration-300"
-          />
+          {product.productImg1 ? (
+            <Image
+              src={product.productImg1}
+              alt={product.productName || product.name}
+              fill
+              className="object-cover hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <span className="text-gray-400">Fotoğraf Yok</span>
+            </div>
+          )}
         </div>
       </div>
 
